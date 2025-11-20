@@ -1,0 +1,463 @@
+/* =========================================================================
+   0) Root tokens & base
+   ------------------------------------------------------------------------- */
+:root{
+  /* Colors */
+  --bg:#fafafa; --card:#fff; --ink:#1a1a1a; --muted:#6a6a6a;
+  --primary:#0d6efd; --border:#e7e7e7; --danger:#c62828;
+
+  /* Task 2 cards */
+  --thumb-size: 90px;
+  --card-pad: 16px;
+  --card-pad-top: 18px;
+  --card-pad-side: 16px;
+  --card-pad-bot: 16px;
+  --card-height: 280px;         /* fixed product-card height */
+  --attrs-max: 120px;           /* visible area for attributes list */
+
+  /* ECM knobs (central control for table widths) */
+  --ecm-text-col: 40%;          /* PU/CI left statement column */
+  --ecm-scale-col-w: 44px;      /* exact width of a single 1–7 column */
+  --ecm-anchor-col-w: 18ch;     /* S left/right anchor width */
+}
+
+*{ box-sizing: border-box; }
+
+html,body{
+  margin:0; padding:0; background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.5;
+}
+
+/* =========================================================================
+   1) Layout utilities
+   ------------------------------------------------------------------------- */
+.container{ max-width:1600px; margin:40px auto; padding:0 28px; }
+.grid{ display:grid; gap:16px; }
+.grid-2{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.grid-3{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+.grid-5{ grid-template-columns:repeat(5,minmax(0,1fr)); }
+.row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.row-space{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.row-end{ display:flex; justify-content:flex-end; }
+hr{ border:none; border-top:1px solid var(--border); margin:16px 0; }
+
+/* =========================================================================
+   2) Typography & cards
+   ------------------------------------------------------------------------- */
+h1,h2{ margin:0 0 12px; }
+h1{ font-size:1.6rem; }
+h2{ font-size:1.25rem; }
+p{ margin:0 0 10px; }
+.small{ font-size:.9rem; color:var(--muted); }
+.muted{ color:var(--muted); }
+.timer{ font-weight:700; }
+.error{ color:var(--danger); font-weight:600; margin-top:6px; }
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:28px;
+  box-shadow:0 2px 16px rgba(0,0,0,.03);
+}
+.card + .card{ margin-top:18px; }
+
+label{ display:block; margin:8px 0; }
+
+.badge{
+  display:inline-block; font-size:.8rem; padding:2px 8px;
+  border:1px solid var(--border); border-radius:999px; background:#fff; color:var(--muted);
+}
+
+/* =========================================================================
+   3) Buttons
+   ------------------------------------------------------------------------- */
+.button-row{ display:flex; gap:12px; padding:20px 0 8px; }
+
+button,.btn{
+  border:1px solid var(--border); background:#fff; color:#111;
+  padding:10px 14px; border-radius:999px; cursor:pointer; font-weight:600;
+}
+button.primary{ background:var(--primary); border-color:var(--primary); color:#fff; }
+button.danger{ background:var(--danger); border-color:var(--danger); color:#fff; }
+button:disabled{ opacity:.55; cursor:not-allowed; }
+
+/* =========================================================================
+   4) Generic “tile” scales (used in some UIs, not the tables)
+   ------------------------------------------------------------------------- */
+.scale{ display:grid; gap:8px; grid-template-columns:repeat(5,minmax(0,1fr)); }
+.scale-7{ grid-template-columns:repeat(7,minmax(0,1fr)); }
+.scale-9{ grid-template-columns:repeat(9,minmax(0,1fr)); }
+.scale label{
+  border:1px solid var(--border); padding:10px; border-radius:10px;
+  text-align:center; cursor:pointer; background:#fff;
+}
+input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
+
+/* =========================================================================
+   5) Generic tables
+   ------------------------------------------------------------------------- */
+.table{
+  width:100%; border-collapse:collapse; background:#fff;
+  border:1px solid var(--border); border-radius:12px; overflow:hidden;
+}
+.table th,.table td{ padding:10px; border-bottom:1px solid var(--border); vertical-align:top; }
+.table th{ background:#f6f7f9; text-align:left; }
+
+/* =========================================================================
+   6) Likert tables – shared base (used by Task 1 / NRQ / PIES / ECM)
+   ------------------------------------------------------------------------- */
+.likert-table-wrapper{ padding:0 8px; }
+
+.likert-table{
+  width:100%; table-layout:fixed; border-collapse:collapse;
+  font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1;
+}
+.likert-table thead th,
+.likert-table tbody td{
+  box-sizing:border-box; padding:12px 8px; vertical-align:middle;
+}
+.likert-table thead th:not(:first-child){
+  text-align:center; font-weight:700; font-size:1rem; line-height:1.2;
+}
+.likert-table .likert-help td{
+  text-align:center; font-size:.9rem; line-height:1.2; white-space:nowrap;
+}
+.likert-table input[type="radio"]{ display:block; margin:0 auto; }
+.likert-table tbody td{ padding-top:14px; padding-bottom:14px; }
+.likert-table tbody .stmt{ padding-top:16px; padding-bottom:16px; }
+
+/* Default widths (may be overridden per questionnaire) */
+.nrq-table thead th:first-child,
+.nrq-table tbody td.stmt{ width:42%; text-align:left; padding-right:16px; }
+.nrq-table thead th:not(:first-child),
+.nrq-table tbody td:not(.stmt){ width:calc(58% / 7); text-align:center; }
+
+.pies-table thead th:first-child,
+.pies-table tbody td.stmt{ width:46%; text-align:left; }
+.pies-table thead th:not(:first-child),
+.pies-table tbody td:not(.stmt){ width:calc(54% / 5); text-align:center; }
+
+/* =========================================================================
+   7) Task 3 — NRQ (7-point) alignment pack
+   ------------------------------------------------------------------------- */
+#pageMount[data-slug="task-3-nrq"] .likert-table.nrq-table{
+  table-layout:fixed; border-collapse:collapse; font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
+}
+#pageMount[data-slug="task-3-nrq"] .likert-table.nrq-table thead tr:first-child th{
+  padding:10px 0; line-height:1; height:40px; vertical-align:middle; white-space:nowrap; text-align:center;
+}
+#pageMount[data-slug="task-3-nrq"] .likert-table.nrq-table thead tr:first-child th:first-child{ text-align:left; }
+#pageMount[data-slug="task-3-nrq"] .likert-table.nrq-table thead tr.likert-help td{
+  padding-top:6px; padding-bottom:8px; line-height:1.15;
+}
+#pageMount[data-slug="task-3-nrq"] .likert-table.nrq-table tbody td.center{ text-align:center; }
+#pageMount[data-slug="task-3-nrq"] .likert-table.nrq-table tbody td.center input[type="radio"]{ display:block; margin:0 auto; }
+
+/* =========================================================================
+   8) Task 3 — PIES (5-point) alignment pack
+   ------------------------------------------------------------------------- */
+#pageMount[data-slug="task-3-pies"] .likert-table.pies-table{
+  table-layout:fixed; border-collapse:collapse; font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
+}
+#pageMount[data-slug="task-3-pies"] .likert-table.pies-table thead tr:first-child th{
+  padding:10px 0; line-height:1; height:40px; vertical-align:middle; white-space:nowrap; text-align:center;
+}
+#pageMount[data-slug="task-3-pies"] .likert-table.pies-table thead tr:first-child th:first-child{ text-align:left; }
+#pageMount[data-slug="task-3-pies"] .likert-table.pies-table thead tr.likert-help td{
+  padding-top:6px; padding-bottom:8px; line-height:1.15;
+}
+#pageMount[data-slug="task-3-pies"] .likert-table.pies-table tbody td.center{ text-align:center; }
+#pageMount[data-slug="task-3-pies"] .likert-table.pies-table tbody td.center input[type="radio"]{ display:block; margin:0 auto; }
+
+/* =========================================================================
+   9) Task 2 — Product grid & card
+   ------------------------------------------------------------------------- */
+.product-grid{
+  display:grid; gap:18px;
+  grid-template-columns:repeat(auto-fill, minmax(360px, 1fr));
+}
+
+.product-card{
+  display:grid;
+  grid-template-columns: var(--thumb-size) 1fr;
+  grid-template-rows: auto auto;
+  grid-template-areas: "thumb main" "attrs attrs";
+  gap:10px; column-gap:15px; row-gap:17px;
+
+  position:relative;
+  background:#fff; border:1px solid var(--border); border-radius:12px;
+  padding: var(--card-pad-top) var(--card-pad-side) var(--card-pad-bot) var(--card-pad-side);
+  grid-template-rows: auto 1fr;
+
+  height:var(--card-height); min-height:var(--thumb-size);
+  outline:none;
+}
+.product-card:hover{ box-shadow:0 2px 10px rgba(0,0,0,.06); }
+.product-card:focus{ box-shadow:0 0 0 2px rgba(13,110,253,.18); border-color:var(--primary); }
+.product-card.selected{ border-color:var(--primary); box-shadow:0 0 0 2px rgba(13,110,253,.18); }
+
+/* Thumbnail (left) */
+.product-card .product-thumb{
+  grid-area:thumb; position:static;
+  width:var(--thumb-size); height:var(--thumb-size);
+  object-fit:contain; border-radius:8px; border:0;
+}
+
+/* Title + price (right) */
+.product-card .product-main{
+  grid-area:main; display:flex; flex-direction:column; gap:2px; overflow:hidden;
+}
+.product-card .product-title{
+  font-size:1rem; line-height:2.5; font-weight:600; margin-left:8px;
+  white-space:normal; overflow:hidden; text-overflow:ellipsis;
+  display:-webkit-box; -webkit-box-orient:vertical;
+}
+.product-card .price{
+  font-size:.95rem; font-weight:500; color:#919191; margin-top:2px; margin-left:8px;
+}
+
+/* Attributes area (reveals on hover) */
+.product-card .attrs{
+  grid-area:attrs;
+  margin-top:0; padding-top:0; border-top:none;
+  color:var(--muted); font-size:.85rem; line-height:1.35; padding-left:30px;
+
+  max-height:0; opacity:0; overflow:hidden;
+  transition:max-height .25s ease, opacity .25s ease;
+}
+.product-card:hover .attrs,
+.product-card:focus .attrs,
+.product-card:focus-within .attrs{
+  max-height:var(--attrs-max);
+  opacity:1;
+  overflow:auto;
+}
+
+.product-card .row-space{
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start; gap:4px;
+}
+
+@media (max-width:640px){
+  .product-card{
+    grid-template-columns:1fr;
+    grid-template-areas:"thumb" "main" "attrs";
+    height:var(--card-height);
+  }
+  .product-card .product-thumb{ width:100%; height:100px; }
+}
+
+/* Ensure grid children can shrink to avoid overflow */
+.product-card .product-main,
+.product-card .attrs{ min-height:0; }
+
+/* =========================================================================
+   10) Demographics (no “tile” look; plain vertical radios)
+   ------------------------------------------------------------------------- */
+.question{ font-size:1rem; font-weight:300; color:#222; margin:0 0 6px; }
+
+#pageMount[data-slug="task-4-demo-intro"] .scale label{
+  border:none !important; padding:0 !important; border-radius:0 !important; background:transparent !important;
+  margin:0; display:flex; align-items:center; gap:8px; text-align:left;
+}
+#pageMount[data-slug="task-4-demo-intro"] .scale{ gap:20px; }
+#pageMount[data-slug="task-4-demo-intro"] input[type="radio"]{ margin:0; }
+
+/* Demographics schmaler machen */
+#pageMount[data-slug="task-4-demo-intro"] .card{
+  max-width: 900px;       /* z.B. 720px, nach Geschmack anpassen */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Buttons zentrieren */
+#pageMount[data-slug="task-4-demo-intro-5-thanks"] ~ .button-row{
+  justify-content: center;
+}
+
+/* =========================================================================
+   10.5) Final Page
+   ------------------------------------------------------------------------- */
+
+/* center and narrow */
+#pageMount[data-slug="final-thanks"] .card{
+  max-width: 640px;         
+  margin-left: auto;
+  margin-right: auto;
+  text-align: auto;
+}
+
+
+
+/* =========================================================================
+   11) Task 1 — unified Likert table (one header row, items as rows)
+   ------------------------------------------------------------------------- */
+#pageMount[data-slug="task-1"] .likert-table.t1-table{
+  width:100%; table-layout:fixed; border-collapse:collapse;
+  font-variant-numeric:tabular-nums; border:1px solid var(--border);
+  border-radius:12px; overflow:hidden;
+}
+
+/* Cell defaults */
+#pageMount[data-slug="task-1"] .likert-table.t1-table th,
+#pageMount[data-slug="task-1"] .likert-table.t1-table td{ padding:12px 8px; vertical-align:middle; }
+
+/* Header lines */
+#pageMount[data-slug="task-1"] .likert-table.t1-table thead th{ text-align:center; font-weight:700; }
+#pageMount[data-slug="task-1"] .likert-table.t1-table thead th:first-child{ text-align:left; font-weight:600; }
+
+/* Radio alignment */
+#pageMount[data-slug="task-1"] .likert-table.t1-table td.center{ text-align:center; }
+#pageMount[data-slug="task-1"] .likert-table.t1-table input[type="radio"]{ margin:0 auto; display:block; }
+
+/* Column widths: 42% label + five equal scale columns */
+#pageMount[data-slug="task-1"] .likert-table.t1-table thead th:first-child,
+#pageMount[data-slug="task-1"] .likert-table.t1-table tbody td.stmt{ width:42%; text-align:left; padding-right:16px; }
+#pageMount[data-slug="task-1"] .likert-table.t1-table thead th:not(:first-child),
+#pageMount[data-slug="task-1"] .likert-table.t1-table tbody td:not(.stmt){ width:calc(58% / 5); }
+
+/* Subtle row separators & more row spacing */
+#pageMount[data-slug="task-1"] .likert-table.t1-table tbody tr + tr td{ border-top:1px solid var(--border); }
+#pageMount[data-slug="task-1"] .likert-table.t1-table tbody td{ padding-top:18px; padding-bottom:18px; }
+#pageMount[data-slug="task-1"] .likert-table.t1-table tbody td.stmt{ padding-top:20px; padding-bottom:20px; }
+
+/* Numbers 1–5: identical height for perfect alignment */
+#pageMount[data-slug="task-1"] .likert-table.t1-table thead tr:first-child th{
+  padding:10px 0; line-height:1; height:40px; vertical-align:middle; white-space:nowrap; text-align:center;
+}
+#pageMount[data-slug="task-1"] .likert-table.t1-table thead tr.likert-help td{
+  padding-top:6px; padding-bottom:8px; line-height:1.15;
+}
+
+/* =========================================================================
+   12) Task 3 — ECM (PU, Satisfaction, CI: spacing + alignment)
+   ------------------------------------------------------------------------- */
+/* Equal space between PU / S / CI cards inside the ECM page card */
+[data-slug="task-3-ecm"] .card > section.card{ margin-top:18px; }
+[data-slug="task-3-ecm"] .card > section.card:first-of-type{ margin-top:0; }
+
+/* Shared table alignment */
+#pageMount[data-slug="task-3-ecm"] .likert-table{
+  table-layout:fixed; border-collapse:collapse; font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
+}
+#pageMount[data-slug="task-3-ecm"] .likert-table thead tr:first-child th{
+  padding:10px 0; line-height:1; height:40px; vertical-align:middle; white-space:nowrap; text-align:center;
+}
+#pageMount[data-slug="task-3-ecm"] .likert-table thead tr.likert-help td{
+  padding-top:6px; padding-bottom:8px; line-height:1.15; text-align:center;
+}
+#pageMount[data-slug="task-3-ecm"] .likert-table td.center{ text-align:center; }
+#pageMount[data-slug="task-3-ecm"] .likert-table td.center input[type="radio"]{ display:block; margin:0 auto; }
+
+/* PU & CI: statement left + seven equal scale columns */
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-pu thead th:first-child,
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-pu tbody td.stmt,
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-ci thead th:first-child,
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-ci tbody td.stmt{
+  width: var(--ecm-text-col); padding-right:16px; text-align:left;
+}
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-pu thead th:not(:first-child),
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-ci thead th:not(:first-child),
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-pu tbody td:not(.stmt),
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-ci tbody td:not(.stmt){
+  width: calc((100% - var(--ecm-text-col)) / 7);
+  text-align:center;
+}
+
+/* Satisfaction: left anchor | seven scale columns | right anchor */
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-s thead tr:first-child th:nth-child(n+2):nth-child(-n+8),
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-s tbody td.center{
+  width: var(--ecm-scale-col-w); text-align:center;
+}
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-s thead tr:first-child th:first-child,
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-s thead tr:first-child th:last-child,
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-s tbody td.anchor-left,
+#pageMount[data-slug="task-3-ecm"] .likert-table.ecm-s tbody td.anchor-right{
+  width: var(--ecm-anchor-col-w); text-align:center; color:var(--muted); white-space:normal;
+}
+
+/* =========================================================================
+   13) Task 3 — PAAS (vertical, left-aligned list)
+   ------------------------------------------------------------------------- */
+#pageMount[data-slug="task-3-paas"] .paas-scale{
+  /* Turn the 9-point tiles into a simple vertical radio list */
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;      /* align the whole list to the left */
+  gap:10px;
+  text-align:left;
+}
+
+#pageMount[data-slug="task-3-paas"] .paas-scale .paas-option{
+  /* Make each option a plain row (no tile chrome) */
+  border:none; background:transparent; padding:0; border-radius:0;
+  display:flex; align-items:center; gap:8px;
+  justify-content:flex-start;
+  width:auto; max-width:720px; /* optional width limit for readability */
+  min-height:0;
+}
+
+#pageMount[data-slug="task-3-paas"] .paas-scale .paas-option input[type="radio"]{ margin:0; }
+
+#pageMount[data-slug="task-3-paas"] .paas-scale .paas-label{
+  display:inline-flex; align-items:baseline; gap:6px; line-height:1.1; text-align:left;
+}
+#pageMount[data-slug="task-3-paas"] .paas-scale .paas-label strong{
+  min-width:1.6ch; text-align:center; /* numbers align before the hyphen */
+}
+
+/* =========================================================================
+   14) Responsive tweaks
+   ------------------------------------------------------------------------- */
+@media (max-width:720px){
+  .container{ padding:0 16px; margin:28px auto; }
+  .card{ padding:20px; }
+  .product-grid{ gap:12px; }
+  .product-card{ padding:12px; gap:12px; }
+
+  /* NRQ: give statement more width on small screens */
+  .nrq-table thead th:first-child,
+  .nrq-table tbody td.stmt{ width:55%; }
+  .nrq-table thead th:not(:first-child),
+  .nrq-table tbody td:not(.stmt){ width:calc(45% / 7); }
+
+  .likert-table .likert-help td{ white-space:normal; line-height:1.15; }
+}
+
+
+
+:root{
+  /* Tighten radio columns (default was ~44px) and widen text col */
+  --ecm-scale-col-w: 110px;   /* width for each 1–7 column */
+  --ecm-text-col: 58%;       /* statement column width */
+}
+
+/* Make the combined table use the new widths */
+.likert-table.ecm-pu-ci {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.likert-table.ecm-pu-ci th:first-child,
+.likert-table.ecm-pu-ci td.stmt {
+  width: var(--ecm-text-col);
+}
+
+.likert-table.ecm-pu-ci th:not(:first-child),
+.likert-table.ecm-pu-ci td.center {
+  width: var(--ecm-scale-col-w);
+  padding: 4px 0;    /* slimmer cells for the scale */
+}
+
+/* Optional: compact the helper labels row a bit */
+.likert-table.ecm-pu-ci thead .likert-help td {
+  font-size: .9rem;
+  line-height: 1.2;
+  padding: 4px 0;
+}
+
+/* Optional: slightly smaller radios to save space */
+.likert-table.ecm-pu-ci input[type="radio"]{
+  transform: scale(.9);
+}
