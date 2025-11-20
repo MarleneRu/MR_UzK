@@ -348,7 +348,7 @@ export const PRODUCTS = {
       id: "wb_waterdrop_sport",
       name: "Waterdrop All-Purpose Sport Bottle",
       price: "28,90€",
-      image: "https://www.waterdrop.de/cdn/shop/files/All_Purpose_600ml_-_petrol_turquoise_pastel_matt_Spout_lid_black_3bddaa1a-9ff3-4d55-9c23-a552cb3034dd_1500x.png?v=1753343028", 
+      image: "https://www.waterdrop.de/cdn/shop/files/All_Purpose_Ultralight_0.8_L_Brand_Green_-_Loop_Lid_Black.png?v=1750144717", 
       attrs: [
         "Lightweight single-wall steel bottle",
         "Size: 800 ml",
