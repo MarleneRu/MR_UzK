@@ -438,23 +438,11 @@ const PAAS_LABELS = {
 /* --- NRQ items --- */
 
 const NRQ_ITEMS = [
-  {
-    key: 'ICL1',
-    text: 'For this task, many things needed to be kept in mind simultaneously.'
-  },
-  { key: 'ICL2', text: 'This task was very complex.' },
-  {
-    key: 'ECL1',
-    text: 'During this task, it was exhausting to find the important information.'
-  },
-  {
-    key: 'ECL2',
-    text: 'The design of this task was very inconvenient for learning.'
-  },
-  {
-    key: 'ECL3',
-    text: 'During this task, it was difficult to recognize and link the crucial information.'
-  }
+  {key: 'ICL1',text: 'For this task, many things needed to be kept in mind simultaneously.'},
+  {key: 'ICL2', text: 'This task was very complex.' },
+  {key: 'ECL1', text: 'During this task, it was exhausting to find the important information.'},
+  {key: 'ECL2', text: 'The design of this task was very inconvenient for learning.'},
+  {key: 'ECL3', text: 'During this task, it was difficult to recognize and link the crucial information.'}
 ];
 
 // Simple in-place shuffle using Math.random
@@ -1138,13 +1126,33 @@ const PAGES = [
   {
     slug: 'task-3-paas',
     title: 'Task 3 — PAAS (Cognitive Load)',
-    render: container => {
+    render: async (container) => {
       const saved = state.answers?.paas ?? null;
+
+      // Load chosen product from Supabase
+      if (!state.selected_product && state.participant_id) {
+      const { data, error } = await supabase
+        .from('participants')
+        .select('selected_product')
+        .eq('participant_id', state.participant_id)
+        .maybeSingle();
+
+      if (!error && data?.selected_product) {
+        state.selected_product = data.selected_product;
+        saveLS('exp_state', state); // falls du LocalStorage nutzt
+        console.log('[PAAS] Loaded selected_product from Supabase:', state.selected_product);
+      } else {
+        console.warn('[PAAS] Could not load selected_product', error);
+      }
+    }
+
+      const productName = state.selected_product || 'the product you chose';
 
       container.innerHTML = `
         <div class="card">
           <h1>Questionnaire (1)</h1>
-          <p>Thanks for completing the two tasks. Next, you will be asked to complete four short questionnaires.</p>
+          <p>Thanks for choosing a final product. You have selected:<strong> ${productName}</strong></p>
+          <p>Next, you will be asked to complete four short questionnaires about your decision-making and product choice.</p>
           <p>The first two questionnaires assess your cognitive load during the previous decision-making task.</p>
           <p><strong>Please rate your mental effort required to solve the previous decision-making task on a 9-point Likert scale, ranging from <i>very, very low mental effort</i> (1) to <i>very, very high mental effort</i> (9):</strong></p>
           <div id="paasError" class="error" style="display:none;"></div>
@@ -1353,7 +1361,7 @@ const PAGES = [
       container.innerHTML = `
         <div class="card">
           <h1>Questionnaire (3)</h1>
-          <p>The next questionnaire assesses your interest in the products you have just viewed in the decision making task.</p>
+          <p>The next questionnaire assesses your interest in the products you have just viewed in the decision-making task.</p>
           <p><strong>Please indicate how much you agree with each of the following statements using a 5-point scale, ranging from <i>strongly disagree (1)</i> to <i>strongly agree (5)</i>.</strong></p>
           <div id="piesError" class="error" style="display:none;"></div>
 
@@ -1513,7 +1521,9 @@ const PAGES = [
       container.innerHTML = `
         <div class="card">
           <h1>Questionnaire (4.1)</h1>
-          <p>Please answer the following statements regarding the product you finally chose in the decision-making task.</p>
+          <p> In the following, you are asked about your thoughts about the product you selected in the decision-making task.</p>
+          <p> In all statements, the "chosen product" refers to the final product you selected previously.</p>
+          <p> Please answer the questions based on the product information and features that were presented to you and and how you imagine using this product in your everyday life.
           <p><strong>Please indicate how much you agree with each statement using a 7-point scale, from <i>strongly disagree (1)</i> to <i>strongly agree (7)</i>.</strong></p>
           <div id="ecmError" class="error" style="display:none;"></div>
 
@@ -1729,7 +1739,7 @@ const PAGES = [
           <div id="demoError" class="error" style="display:none;"></div>
           <h1>Demographic Information</h1>
           <p>Thank you for completing the four questionnaires.</p>
-          <p>Finally, we ask you to provide us with some demographic information. This information will help me understand the characteristics of the study’s participants and is essential for accurately interpreting the results of the study.</p>
+          <p>Finally, I ask you to provide us with some demographic information. This information will help me understand the characteristics of the study’s participants and is essential for accurately interpreting the results of the study.</p>
         </div>
 
         <section class="card" style="padding:16px;">
