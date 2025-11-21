@@ -830,7 +830,7 @@ const PAGES = [
         <div class="card">
           <h1>Task 2 — Instructions</h1>
           <p>In the following you are presented with a list of products. Additional information on the products can be seen when you hover over the product.</p>
-          <p><strong>Task: Imagine you are buying for your weekly use. Please select the product you would add to your cart. You may review as much information as you like before making your decision.</strong></p>
+          <p><strong>Task: Imagine you are buying for your <i>weekly use</i>. Please select the product you would add to your cart. You may review as much information as you like before making your decision.</strong></p>
           <hr/>
           <div class="row">
             <span class="badge">Condition: ${state.condition?.code || '-'}</span>
@@ -898,7 +898,7 @@ const PAGES = [
       let html = `
         <div class="card">
           <h1>Task 2 - Online Decision Making</h1>
-          <p><strong>Task: Imagine you are buying for your weekly use. Please select the product you would add to your cart.</strong></p>
+          <p><strong>Task: Imagine you are buying for your <i>weekly use</i>. Please select the product you would add to your cart.</strong></p>
           <p>Additional information on the products can be seen when you hover over the product. You may review as much information as you like before making your decision.</p>
           <p>Click on the product to select it and finish the task using the “Finish Task 2” button at the bottom.</p>
       `;
@@ -1458,160 +1458,190 @@ const PAGES = [
   },
 
   /* -----------------------------------------------------------------------
-     Task 3.4 (Part 1) — ECM: PU & CI
-     ---------------------------------------------------------------------- */
-  {
-    slug: 'task-3-ecm',
-    title: 'Questionnaire (4)',
-    render: async container => {
-      // Ensure assigned category is loaded from DB if missing
-      if (!state.assignedCategory) {
-        try {
-          const { data, error } = await supabase
-            .from('participants')
-            .select('assigned_category')
-            .eq('participant_id', state.participant_id)
-            .maybeSingle();
+   Task 3.4 (Part 1) — ECM: PU & CI
+   ---------------------------------------------------------------------- */
+{
+  slug: 'task-3-ecm',
+  title: 'Questionnaire (4)',
+  render: async container => {
+    // Ensure assigned category is loaded from DB if missing
+    if (!state.assignedCategory && state.participant_id) {
+      try {
+        const { data, error } = await supabase
+          .from('participants')
+          .select('assigned_category')
+          .eq('participant_id', state.participant_id)
+          .maybeSingle();
 
-          if (!error && data?.assigned_category) {
-            state.assignedCategory = data.assigned_category;
-            saveLS('exp_state', state);
-            console.log(
-              '[ECM] Loaded assignedCategory from Supabase:',
-              state.assignedCategory
-            );
-          } else {
-            console.warn(
-              '[ECM] Could not load assigned_category:',
-              error || 'No value returned'
-            );
-          }
-        } catch (err) {
-          console.error('[ECM] Supabase fetch failed:', err);
+        if (!error && data?.assigned_category) {
+          state.assignedCategory = data.assigned_category;
+          saveLS('exp_state', state);
+          console.log(
+            '[ECM] Loaded assignedCategory from Supabase:',
+            state.assignedCategory
+          );
+        } else {
+          console.warn(
+            '[ECM] Could not load assigned_category:',
+            error || 'No value returned'
+          );
         }
+      } catch (err) {
+        console.error('[ECM] Supabase fetch failed:', err);
       }
+    }
 
-      const likertRow = (name, label) => `
-        <tr>
-          <td class="stmt">${label}</td>
-          ${ECM_HEADERS.map(
-            v => `
-            <td class="center">
-              <input
-                type="radio"
-                name="${name}"
-                value="${v}"
-                ${state.answers.ecm?.[name] === v ? 'checked' : ''}
-                aria-label="${name} = ${v}"
-              >
-            </td>
-          `
-          ).join('')}
-        </tr>
-      `;
+    // Ensure selected_product is loaded from DB if missing
+    if (!state.selected_product && state.participant_id) {
+      try {
+        const { data, error } = await supabase
+          .from('participants')
+          .select('selected_product')
+          .eq('participant_id', state.participant_id)
+          .maybeSingle();
 
-      const category = state.assignedCategory || 'Detergents';
-      const PU_ITEMS = getECM_PU_ITEMS(category);
-
-      const PU_CI_COMBINED = [
-        ...PU_ITEMS.map(it => ({ type: 'item', item: it })),
-        ...ECM_CI_ITEMS.map(it => ({ type: 'item', item: it }))
-      ];
-
-      container.innerHTML = `
-        <div class="card">
-          <h1>Questionnaire (4.1)</h1>
-          <p> In the following, you are asked about your thoughts about the product you selected in the decision-making task.</p>
-          <p> In all statements, the "chosen product" refers to the final product you selected previously.</p>
-          <p> Please answer the questions based on the product information and features that were presented to you and and how you imagine using this product in your everyday life.
-          <p><strong>Please indicate how much you agree with each statement using a 7-point scale, from <i>strongly disagree (1)</i> to <i>strongly agree (7)</i>.</strong></p>
-          <div id="ecmError" class="error" style="display:none;"></div>
-
-          <!-- Perceived Usefulness + Continuance Intention -->
-          <section class="card" style="padding:16px;">
-            <div class="likert-table-wrapper">
-              <table class="likert-table ecm-pu-ci">
-                <thead>
-                  <tr>
-                    <th>Statement</th>
-                    ${ECM_HEADERS.map(h => `<th>${h}</th>`).join('')}
-                  </tr>
-                  <tr class="likert-help">
-                    <th></th>
-                    ${ECM_LIKERT_LABELS.map(lbl => `<td>${lbl}</td>`).join('')}
-                  </tr>
-                </thead>
-                <tbody>
-                  ${PU_CI_COMBINED
-                    .map(({ item }) => likertRow(`ECM_${item.key}`, item.text))
-                    .join('')}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-      `;
-
-      container.addEventListener('change', e => {
-        const name = e.target?.name;
-        if (!name || !/^ECM_/.test(name)) return;
-        state.answers.ecm[name] = Number(e.target.value);
-        persist();
-      });
-    },
-
-    beforeNext: async () => {
-      const err = document.getElementById('ecmError');
-      if (err) {
-        err.style.display = 'none';
-        err.textContent = '';
-      }
-
-      const category = state.assignedCategory || 'Detergents';
-      const PU_ITEMS = getECM_PU_ITEMS(category);
-
-      const requiredKeys = [
-        ...PU_ITEMS.map(it => 'ECM_' + it.key),
-        ...ECM_CI_ITEMS.map(it => 'ECM_' + it.key)
-      ];
-
-      for (const k of requiredKeys) {
-        const sel = document.querySelector(`input[name="${k}"]:checked`);
-        if (!sel) {
-          if (err) {
-            err.textContent = 'Please answer all statements before continuing.';
-            err.style.display = 'block';
-          }
-          return false;
+        if (!error && data?.selected_product) {
+          state.selected_product = data.selected_product;
+          saveLS('exp_state', state);
+          console.log(
+            '[ECM] Loaded selected_product from Supabase:',
+            state.selected_product
+          );
+        } else {
+          console.warn(
+            '[ECM] Could not load selected_product:',
+            error || 'No value returned'
+          );
         }
+      } catch (err) {
+        console.error('[ECM] Supabase fetch for selected_product failed:', err);
       }
+    }
 
-      const row = { participant_id: state.participant_id };
-      requiredKeys.forEach(k => {
-        const sel = document.querySelector(`input[name="${k}"]:checked`);
-        row[k] = parseInt(sel.value, 10);
-      });
+    const productName = state.selected_product || 'the product you selected';
 
-      const { error } = await supabase
-        .from('questionnaires')
-        .upsert(row, {
-          onConflict: 'participant_id',
-          returning: 'minimal'
-        });
+    const likertRow = (name, label) => `
+      <tr>
+        <td class="stmt">${label}</td>
+        ${ECM_HEADERS.map(
+          v => `
+          <td class="center">
+            <input
+              type="radio"
+              name="${name}"
+              value="${v}"
+              ${state.answers.ecm?.[name] === v ? 'checked' : ''}
+              aria-label="${name} = ${v}"
+            >
+          </td>
+        `
+        ).join('')}
+      </tr>
+    `;
 
-      if (error) {
-        console.error('ECM upsert error:', error);
+    const category = state.assignedCategory || 'Detergents';
+    const PU_ITEMS = getECM_PU_ITEMS(category);
+
+    const PU_CI_COMBINED = [
+      ...PU_ITEMS.map(it => ({ type: 'item', item: it })),
+      ...ECM_CI_ITEMS.map(it => ({ type: 'item', item: it }))
+    ];
+
+    container.innerHTML = `
+      <div class="card">
+        <h1>Questionnaire (4.1)</h1>
+        <p>In the following, you will be asked about your thoughts on <strong>${productName}</strong>, the product you selected in the decision-making task.</p>
+        <p>All statements, refer to this as "chosen product".</p>
+        <p>Please answer the questions based on the product information and features that were presented to you and how you imagine using this product in your everyday life.</p>
+        <p><strong>Please indicate how much you agree with each statement using a 7-point scale, from <i>strongly disagree (1)</i> to <i>strongly agree (7)</i>.</strong></p>
+        <div id="ecmError" class="error" style="display:none;"></div>
+
+        <!-- Perceived Usefulness + Continuance Intention -->
+        <section class="card" style="padding:16px;">
+          <div class="likert-table-wrapper">
+            <table class="likert-table ecm-pu-ci">
+              <thead>
+                <tr>
+                  <th>Statement</th>
+                  ${ECM_HEADERS.map(h => `<th>${h}</th>`).join('')}
+                </tr>
+                <tr class="likert-help">
+                  <th></th>
+                  ${ECM_LIKERT_LABELS.map(lbl => `<td>${lbl}</td>`).join('')}
+                </tr>
+              </thead>
+              <tbody>
+                ${PU_CI_COMBINED
+                  .map(({ item }) => likertRow(`ECM_${item.key}`, item.text))
+                  .join('')}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    `;
+
+    container.addEventListener('change', e => {
+      const name = e.target?.name;
+      if (!name || !/^ECM_/.test(name)) return;
+      state.answers.ecm[name] = Number(e.target.value);
+      persist();
+    });
+  },
+
+  beforeNext: async () => {
+    const err = document.getElementById('ecmError');
+    if (err) {
+      err.style.display = 'none';
+      err.textContent = '';
+    }
+
+    const category = state.assignedCategory || 'Detergents';
+    const PU_ITEMS = getECM_PU_ITEMS(category);
+
+    const requiredKeys = [
+      ...PU_ITEMS.map(it => 'ECM_' + it.key),
+      ...ECM_CI_ITEMS.map(it => 'ECM_' + it.key)
+    ];
+
+    for (const k of requiredKeys) {
+      const sel = document.querySelector(`input[name="${k}"]:checked`);
+      if (!sel) {
         if (err) {
-          err.textContent = `Save failed: ${
-            error.message || 'Unknown error'
-          }.`;
+          err.textContent = 'Please answer all statements before continuing.';
           err.style.display = 'block';
         }
         return false;
       }
-      return true;
     }
-  },
+
+    const row = { participant_id: state.participant_id };
+    requiredKeys.forEach(k => {
+      const sel = document.querySelector(`input[name="${k}"]:checked`);
+      row[k] = parseInt(sel.value, 10);
+    });
+
+    const { error } = await supabase
+      .from('questionnaires')
+      .upsert(row, {
+        onConflict: 'participant_id',
+        returning: 'minimal'
+      });
+
+    if (error) {
+      console.error('ECM upsert error:', error);
+      if (err) {
+        err.textContent = `Save failed: ${
+          error.message || 'Unknown error'
+        }.`;
+        err.style.display = 'block';
+      }
+      return false;
+    }
+    return true;
+  }
+},
+
 
   /* -----------------------------------------------------------------------
      Task 3.4 (Part 2) — ECM: Satisfaction
@@ -1647,7 +1677,7 @@ const PAGES = [
       container.innerHTML = `
         <div class="card">
           <h1>Questionnaire (4.2)</h1>
-          <p>Next, think about the overall experience of the product you have chosen in the decision-making task, based on the information and features presented.</p>
+          <p>Next, think about the overall experience of your chosen product, based on the information and features presented.</p>
           <p>Imagine how you would feel using this product in your daily life.</p>
           <p>Please rate the following statement on the 7-point semantic differential scales.</p>
           <p><strong>How do you feel about your overall experience of the chosen product’s use?</strong></p>
@@ -1739,7 +1769,7 @@ const PAGES = [
           <div id="demoError" class="error" style="display:none;"></div>
           <h1>Demographic Information</h1>
           <p>Thank you for completing the four questionnaires.</p>
-          <p>Finally, I ask you to provide us with some demographic information. This information will help me understand the characteristics of the study’s participants and is essential for accurately interpreting the results of the study.</p>
+          <p>Finally, I would ask you to provide some demographic information. This information will help me understand the characteristics of the study’s participants and is essential for accurately interpreting the results of the study.</p>
         </div>
 
         <section class="card" style="padding:16px;">

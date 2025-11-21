@@ -1,5 +1,5 @@
 /* =========================================================================
-   0) Root tokens & base
+   0) Design tokens & global base
    ------------------------------------------------------------------------- */
 :root{
   /* Colors */
@@ -15,10 +15,10 @@
   --card-height: 280px;         /* fixed product-card height */
   --attrs-max: 120px;           /* visible area for attributes list */
 
-  /* ECM knobs (central control for table widths) */
+  /* ECM knobs (base values; may be overridden later) */
   --ecm-text-col: 40%;          /* PU/CI left statement column */
   --ecm-scale-col-w: 44px;      /* exact width of a single 1–7 column */
-  --ecm-anchor-col-w: 18ch;     /* S left/right anchor width */
+  --ecm-anchor-col-w: 18ch;     /* Satisfaction left/right anchor width */
 }
 
 *{ box-sizing: border-box; }
@@ -43,7 +43,7 @@ html,body{
 hr{ border:none; border-top:1px solid var(--border); margin:16px 0; }
 
 /* =========================================================================
-   2) Typography & cards
+   2) Typography & card container
    ------------------------------------------------------------------------- */
 h1,h2{ margin:0 0 12px; }
 h1{ font-size:1.6rem; }
@@ -84,7 +84,7 @@ button.danger{ background:var(--danger); border-color:var(--danger); color:#fff;
 button:disabled{ opacity:.55; cursor:not-allowed; }
 
 /* =========================================================================
-   4) Generic “tile” scales (used in some UIs, not the tables)
+   4) Generic “tile” scales (standalone scale tiles, not tables)
    ------------------------------------------------------------------------- */
 .scale{ display:grid; gap:8px; grid-template-columns:repeat(5,minmax(0,1fr)); }
 .scale-7{ grid-template-columns:repeat(7,minmax(0,1fr)); }
@@ -96,7 +96,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
 input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
 
 /* =========================================================================
-   5) Generic tables
+   5) Generic tables (non-Likert)
    ------------------------------------------------------------------------- */
 .table{
   width:100%; border-collapse:collapse; background:#fff;
@@ -110,6 +110,7 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
    ------------------------------------------------------------------------- */
 .likert-table-wrapper{ padding:0 8px; }
 
+/* Base Likert table structure */
 .likert-table{
   width:100%; table-layout:fixed; border-collapse:collapse;
   font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1;
@@ -140,7 +141,7 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
 .pies-table tbody td:not(.stmt){ width:calc(54% / 5); text-align:center; }
 
 /* =========================================================================
-   7) Task 3 — NRQ (7-point) alignment pack
+   7) Task 3 — NRQ (7-point Likert alignment)
    ------------------------------------------------------------------------- */
 #pageMount[data-slug="task-3-nrq"] .likert-table.nrq-table{
   table-layout:fixed; border-collapse:collapse; font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
@@ -156,7 +157,7 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
 #pageMount[data-slug="task-3-nrq"] .likert-table.nrq-table tbody td.center input[type="radio"]{ display:block; margin:0 auto; }
 
 /* =========================================================================
-   8) Task 3 — PIES (5-point) alignment pack
+   8) Task 3 — PIES (5-point Likert alignment)
    ------------------------------------------------------------------------- */
 #pageMount[data-slug="task-3-pies"] .likert-table.pies-table{
   table-layout:fixed; border-collapse:collapse; font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
@@ -172,23 +173,25 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
 #pageMount[data-slug="task-3-pies"] .likert-table.pies-table tbody td.center input[type="radio"]{ display:block; margin:0 auto; }
 
 /* =========================================================================
-   9) Task 2 — Product grid & card
+   9) Task 2 — Product grid & cards
    ------------------------------------------------------------------------- */
+/* Responsive grid that lays out the product cards */
 .product-grid{
   display:grid; gap:18px;
   grid-template-columns:repeat(auto-fill, minmax(360px, 1fr));
 }
 
+/* Single product card with thumbnail, text, and attributes */
 .product-card{
   display:grid;
   grid-template-columns: var(--thumb-size) 1fr;
-  grid-template-rows: auto auto;
   grid-template-areas: "thumb main" "attrs attrs";
   gap:10px; column-gap:15px; row-gap:17px;
 
   position:relative;
   background:#fff; border:1px solid var(--border); border-radius:12px;
   padding: var(--card-pad-top) var(--card-pad-side) var(--card-pad-bot) var(--card-pad-side);
+
   grid-template-rows: auto 1fr;
 
   height:var(--card-height); min-height:var(--thumb-size);
@@ -198,14 +201,14 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
 .product-card:focus{ box-shadow:0 0 0 2px rgba(13,110,253,.18); border-color:var(--primary); }
 .product-card.selected{ border-color:var(--primary); box-shadow:0 0 0 2px rgba(13,110,253,.18); }
 
-/* Thumbnail (left) */
+/* Thumbnail (left column) */
 .product-card .product-thumb{
   grid-area:thumb; position:static;
   width:var(--thumb-size); height:var(--thumb-size);
   object-fit:contain; border-radius:8px; border:0;
 }
 
-/* Title + price (right) */
+/* Title + price (right column top) */
 .product-card .product-main{
   grid-area:main; display:flex; flex-direction:column; gap:2px; overflow:hidden;
 }
@@ -218,7 +221,7 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
   font-size:.95rem; font-weight:500; color:#919191; margin-top:2px; margin-left:8px;
 }
 
-/* Attributes area (reveals on hover) */
+/* Attributes area (reveals on hover/focus) */
 .product-card .attrs{
   grid-area:attrs;
   margin-top:0; padding-top:0; border-top:none;
@@ -235,10 +238,12 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
   overflow:auto;
 }
 
+/* Column layout inside the card header row */
 .product-card .row-space{
   display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start; gap:4px;
 }
 
+/* Mobile layout: stack thumbnail, main, and attrs vertically */
 @media (max-width:640px){
   .product-card{
     grid-template-columns:1fr;
@@ -253,10 +258,11 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
 .product-card .attrs{ min-height:0; }
 
 /* =========================================================================
-   10) Demographics (no “tile” look; plain vertical radios)
+   10) Demographics (plain vertical radios, narrower card)
    ------------------------------------------------------------------------- */
 .question{ font-size:1rem; font-weight:300; color:#222; margin:0 0 6px; }
 
+/* Turn the generic tile scale into plain vertical radio buttons for demographics */
 #pageMount[data-slug="task-4-demo-intro"] .scale label{
   border:none !important; padding:0 !important; border-radius:0 !important; background:transparent !important;
   margin:0; display:flex; align-items:center; gap:8px; text-align:left;
@@ -264,23 +270,23 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
 #pageMount[data-slug="task-4-demo-intro"] .scale{ gap:20px; }
 #pageMount[data-slug="task-4-demo-intro"] input[type="radio"]{ margin:0; }
 
-/* Demographics schmaler machen */
+/* Make the demographics card narrower and centered */
 #pageMount[data-slug="task-4-demo-intro"] .card{
-  max-width: 900px;       /* z.B. 720px, nach Geschmack anpassen */
+  max-width: 900px;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* Buttons zentrieren */
+/* Center buttons on final demographics thanks page */
 #pageMount[data-slug="task-4-demo-intro-5-thanks"] ~ .button-row{
   justify-content: center;
 }
 
 /* =========================================================================
-   10.5) Final Page
+   10.5) Final Page – thanks screen layout
    ------------------------------------------------------------------------- */
 
-/* center and narrow */
+/* Center and narrow final thanks card */
 #pageMount[data-slug="final-thanks"] .card{
   max-width: 640px;         
   margin-left: auto;
@@ -288,10 +294,8 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
   text-align: auto;
 }
 
-
-
 /* =========================================================================
-   11) Task 1 — unified Likert table (one header row, items as rows)
+   11) Task 1 — unified Likert table (5-point)
    ------------------------------------------------------------------------- */
 #pageMount[data-slug="task-1"] .likert-table.t1-table{
   width:100%; table-layout:fixed; border-collapse:collapse;
@@ -331,13 +335,13 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
 }
 
 /* =========================================================================
-   12) Task 3 — ECM (PU, Satisfaction, CI: spacing + alignment)
+   12) Task 3 — ECM (PU, Satisfaction, CI tables)
    ------------------------------------------------------------------------- */
 /* Equal space between PU / S / CI cards inside the ECM page card */
 [data-slug="task-3-ecm"] .card > section.card{ margin-top:18px; }
 [data-slug="task-3-ecm"] .card > section.card:first-of-type{ margin-top:0; }
 
-/* Shared table alignment */
+/* Shared table alignment for ECM tables */
 #pageMount[data-slug="task-3-ecm"] .likert-table{
   table-layout:fixed; border-collapse:collapse; font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
 }
@@ -378,7 +382,7 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
 }
 
 /* =========================================================================
-   13) Task 3 — PAAS (vertical, left-aligned list)
+   13) Task 3 — PAAS (vertical rating list)
    ------------------------------------------------------------------------- */
 #pageMount[data-slug="task-3-paas"] .paas-scale{
   /* Turn the 9-point tiles into a simple vertical radio list */
@@ -394,7 +398,7 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
   border:none; background:transparent; padding:0; border-radius:0;
   display:flex; align-items:center; gap:8px;
   justify-content:flex-start;
-  width:auto; max-width:720px; /* optional width limit for readability */
+  width:auto; max-width:720px; /* width limit for readability */
   min-height:0;
 }
 
@@ -408,7 +412,7 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
 }
 
 /* =========================================================================
-   14) Responsive tweaks
+   14) Responsive tweaks (global)
    ------------------------------------------------------------------------- */
 @media (max-width:720px){
   .container{ padding:0 16px; margin:28px auto; }
@@ -425,39 +429,44 @@ input[type="radio"], input[type="checkbox"]{ margin-right:6px; }
   .likert-table .likert-help td{ white-space:normal; line-height:1.15; }
 }
 
+/* =========================================================================
+   15) ECM combined PU/CI table – overrides & compact layout
+   ------------------------------------------------------------------------- */
 
-
+/* Override ECM knobs for combined PU/CI table (global custom properties) */
 :root{
-  /* Tighten radio columns (default was ~44px) and widen text col */
+  /* Tighten / adjust columns: wider text column and fixed radio widths */
   --ecm-scale-col-w: 110px;   /* width for each 1–7 column */
-  --ecm-text-col: 58%;       /* statement column width */
+  --ecm-text-col: 58%;        /* statement column width */
 }
 
-/* Make the combined table use the new widths */
+/* Combined PU/CI table layout */
 .likert-table.ecm-pu-ci {
   width: 100%;
   table-layout: fixed;
 }
 
+/* Statement column width */
 .likert-table.ecm-pu-ci th:first-child,
 .likert-table.ecm-pu-ci td.stmt {
   width: var(--ecm-text-col);
 }
 
+/* Scale column widths and slightly slimmer cells */
 .likert-table.ecm-pu-ci th:not(:first-child),
 .likert-table.ecm-pu-ci td.center {
   width: var(--ecm-scale-col-w);
   padding: 4px 0;    /* slimmer cells for the scale */
 }
 
-/* Optional: compact the helper labels row a bit */
+/* Compact helper labels row */
 .likert-table.ecm-pu-ci thead .likert-help td {
   font-size: .9rem;
   line-height: 1.2;
   padding: 4px 0;
 }
 
-/* Optional: slightly smaller radios to save space */
+/* Slightly smaller radios to save space in the combined table */
 .likert-table.ecm-pu-ci input[type="radio"]{
   transform: scale(.9);
 }
