@@ -594,7 +594,20 @@ const PAGES = [
           <p><strong>By continuing, you agree to participate in the study.</strong></p>
         </div>
       `;
+    }, 
+      beforeNext: async () => {
+      try {
+      // Hier wird beim ersten „Continue“-Klick alles initialisiert:
+      // - ensureParticipant() (in ensureSessionRow)
+      // - Session-Row
+      await ensureSessionRow();
+      return true;
+    } catch (e) {
+      console.error('Failed to init participant/session', e);
+      alert('An error occurred when starting the study. Please reload the page and try again.');
+      return false;
     }
+  }
   },
 
   /* -----------------------------------------------------------------------
@@ -2127,7 +2140,6 @@ async function ensureSessionRow() {
  */
 async function renderPage() {
   ensureStateShape();
-  await ensureSessionRow();
 
   let page = PAGES[state.pageIndex];
   if (!page) {
@@ -2403,16 +2415,7 @@ async function flushHoverEvents() {
       );
     }
 
-    const { participant_id } = await ensureParticipant();
-    state.participant_id = participant_id;
-    saveLS('exp_state', state);
-
-    await ensureSessionRow();
-
-    // For development/testing you could force start at page 0:
-    // state.pageIndex = 0;
-    // saveLS('exp_state', state);
-
+    // WICHTIG: kein ensureParticipant(), kein ensureSessionRow() mehr hier
     renderPage();
   } catch (e) {
     console.error('Startup failed:', e);
@@ -2430,3 +2433,4 @@ async function flushHoverEvents() {
       `<div class="card error">Startup failed. Check console & Supabase setup.</div>`;
   }
 })();
+
