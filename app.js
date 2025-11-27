@@ -581,11 +581,11 @@ const PAGES = [
      ---------------------------------------------------------------------- */
   {
     slug: 'instructions',
-    title: 'Welcome and Consent',
+    title: 'Welcome',
     render: container => {
       container.innerHTML = `
         <div class="card">
-          <h1>Welcome </h1>
+          <h1>Welcome to the Study – Information & Consent</h1>
           <p>Thank you for participating in the study! I appreciate your time and involvement.</p>
           <p>I am a student from the University of Cologne, conducting this research as part of my master thesis in Business Analytics and Econometrics.</p>
           <p>The purpose of this experiment is to investigate individuals' behavior in online decision-making. The questions are straightforward and there are no right or wrong answers. I am interested in your honest opinion and thoughts. Your responses are completely anonymous and confidential. The data collected will be used only for research purposes, and no personally identifiable information will be linked to your responses. Your participation is entirely voluntary. You have the right to withdraw from the study at any point without any penalties or consequences.</p>
