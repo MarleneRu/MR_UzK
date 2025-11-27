@@ -590,7 +590,7 @@ const PAGES = [
           <p>I am a student from the University of Cologne, conducting this research as part of my master thesis in Business Analytics and Econometrics.</p>
           <p>The purpose of this experiment is to investigate individuals' behavior in online decision-making. The questions are straightforward and there are no right or wrong answers. I am interested in your honest opinion and thoughts. Your responses are completely anonymous and confidential. The data collected will be used only for research purposes, and no personally identifiable information will be linked to your responses. Your participation is entirely voluntary. You have the right to withdraw from the study at any point without any penalties or consequences.</p>
           <p>If you have any questions about the study or need further information, feel free to contact me (<a href="mailto:mruescho@smail.uni-koeln.de">mruescho@smail.uni-koeln.de</a>).</p>
-          <p>The entire experiment will take about 10 minutes and the data collection starts from this page onwards. You must be 18 years or older to participate in this study.</p>
+          <p>The entire experiment will take about 15 minutes and the data collection starts from this page onwards. You must be 18 years or older to participate in this study.</p>
           <p><strong>By continuing, you agree to participate in the study.</strong></p>
         </div>
       `;
@@ -2056,6 +2056,8 @@ const PAGES = [
             If you have any questions or would like more information about the study’s findings, please do not hesitate to contact me.
             I truly appreciate your participation. Your contribution is valuable to my research and helps advance my understanding of
             mouse behavior in online decision-making.
+
+            You can now close this window. 
           </p>
           <div class="card;">
             <strong>Contact</strong><br/>
