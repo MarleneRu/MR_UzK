@@ -2048,9 +2048,8 @@ const PAGES = [
             If you have any questions or would like more information about the study’s findings, please do not hesitate to contact me.
             I truly appreciate your participation. Your contribution is valuable to my research and helps advance my understanding of
             mouse behavior in online decision-making.
-
-            You can now close this window. 
           </p>
+          <p>You can now close this window. </p>
           <div class="card;">
             <strong>Contact</strong><br/>
             <p>Marlene Rüschoff: <a href="mailto:mruescho@smail.uni-koeln.de">mruescho@smail.uni-koeln.de</a></p>
