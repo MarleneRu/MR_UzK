@@ -611,6 +611,28 @@ const PAGES = [
   },
 
   /* -----------------------------------------------------------------------
+     Experimental Instructions (Overview page after consent)
+     ---------------------------------------------------------------------- */
+  {
+    slug: 'experimental-instructions',
+    title: 'Experimental Instructions',
+    render: container => {
+      container.innerHTML = `
+        <div class="card">
+          <h1>Experimental Instructions</h1>
+          <p> Thank you very much for agreeing to participate in this study. The study is structured as follows: </p>
+          <p> First, you will complete two tasks related to online product choice.</p>
+          <p> This is followed by four short questionnaires about your experiences during the decision-making task and about the selected product. </p>
+          <p> Finally, you will be asked to provide some demographic information.</p>
+          <p>Please read the instructions carefully and answer all questions honestly. There are no right or wrong answers.</p>
+        </div>
+      `;
+    },
+    beforeNext: async () => true
+  },
+
+
+  /* -----------------------------------------------------------------------
      Task 1 — Product Rating
      ---------------------------------------------------------------------- */
   {
