@@ -1580,7 +1580,8 @@ const PAGES = [
         <h1>Questionnaire (4.1)</h1>
         <p>In the following, you will be asked about your thoughts on <strong>${productName}</strong>, the product you selected in the decision-making task.</p>
         <p>All statements, refer to this as "chosen product".</p>
-        <p>Please answer the questions based on the product information and features that were presented to you and how you imagine using this product in your everyday life.</p>
+        <p> For this questionnaire, imagine hypothetically that you are using the chosen product in your everyday life.</p>
+        <p>Please answer the questions based on the product information and features that were presented to you and how you imagine using it.</p>
         <p><strong>Please indicate how much you agree with each statement using a 7-point scale, from <i>strongly disagree (1)</i> to <i>strongly agree (7)</i>.</strong></p>
         <div id="ecmError" class="error" style="display:none;"></div>
 

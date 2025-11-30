@@ -134,7 +134,7 @@ export const PRODUCTS = {
       attrs: [
         "Purpose: Multifunctional Smartwatch",
         "Battery: Up to 24 hours",
-        "Weight: 37.8g (Alu GPS)",
+        "Weight: 37.8g",
         "Cellular connectivity: Supports 5G",
         "Sleep Score based on sleep stages, consistency, etc. ",
         "High blood pressure notifications"
