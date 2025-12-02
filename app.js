@@ -744,17 +744,20 @@ const PAGES = [
           lastSavedSig = sig;
 
           // Assign category based on ratings (best match chosen by DB function)
-          const { data: catData, error: catErr } = await supabase.rpc(
-            'choose_assigned_category',
-            { p_participant_id: state.participant_id }
-          );
+          // Reload assigned_category from participants (trigger already set it)
+          const { data: row, error: catErr } = await supabase
+            .from('participants')
+            .select('assigned_category')
+            .eq('participant_id', state.participant_id)
+            .maybeSingle();
 
-          if (!catErr) {
-            state.assignedCategory = catData || null;
+          if (!catErr && row) {
+            state.assignedCategory = row.assigned_category || null;
             persist();
-          } else {
-            console.warn('choose_assigned_category RPC failed:', catErr);
+          } else if (catErr) {
+            console.warn('assigned_category fetch failed:', catErr);
           }
+
         } catch (e) {
           console.error('Task1 save error:', e);
           err.textContent = `Saving failed: ${e.message || 'Unknown error'}`;
@@ -810,14 +813,18 @@ const PAGES = [
       try {
         await saveTask1Ratings(ratings);
 
-        const { data: catData, error: catErr } = await supabase.rpc(
-          'choose_assigned_category',
-          { p_participant_id: state.participant_id }
-        );
+        // Reload assigned_category from participants (trigger already set it)
+        const { data: row, error: catErr } = await supabase
+          .from('participants')
+          .select('assigned_category')
+          .eq('participant_id', state.participant_id)
+          .maybeSingle();
 
-        if (!catErr) {
-          state.assignedCategory = catData || null;
+        if (!catErr && row) {
+          state.assignedCategory = row.assigned_category || null;
           persist();
+        } else if (catErr) {
+          console.warn('assigned_category fetch failed:', catErr);
         }
 
         T1_LAST_SIG = JSON.stringify(ratings);
@@ -893,28 +900,33 @@ const PAGES = [
       const loadRaw = (state.condition?.load || 'low').toLowerCase();
       const nAttrs = loadRaw === 'high' ? 6 : 3;
 
-      // Ensure assigned category is populated in case of reloads / deep links
-      if (!state.assignedCategory) {
-        try {
-          const { data: row, error } = await supabase
-            .from('participants')
-            .select('assigned_category')
-            .eq('participant_id', state.participant_id)
-            .single();
+      // Always reload assigned_category from DB so we don't use stale local state
+      try {
+        const { data: row, error } = await supabase
+          .from('participants')
+          .select('assigned_category')
+          .eq('participant_id', state.participant_id)
+          .maybeSingle();
 
-          if (!error) {
-            state.assignedCategory = row?.assigned_category || null;
-            saveLS('exp_state', state);
-          } else {
-            console.warn('Could not load assigned_category from DB:', error);
-          }
-        } catch (e) {
-          console.warn('assigned_category lookup failed:', e);
+        if (error) {
+          console.warn('[Task2] Could not load assigned_category from DB:', error);
+        } else if (row && row.assigned_category) {
+          state.assignedCategory = row.assigned_category;
+          saveLS('exp_state', state);
+          console.log('[Task2] assignedCategory from DB:', state.assignedCategory);
+        } else {
+          console.warn('[Task2] No assigned_category in DB, falling back to Detergent.');
+          state.assignedCategory = null;
         }
+      } catch (e) {
+        console.warn('[Task2] assigned_category lookup failed:', e);
       }
 
       const chosenCat = state.assignedCategory || 'Detergent';
+      console.log('[Task2] Using category for products:', chosenCat);
       const baseItems = PRODUCTS[chosenCat] || [];
+
+
 
       // Use deterministic randomization based on session or participant ID
       const seedInt = hashStringToInt(
