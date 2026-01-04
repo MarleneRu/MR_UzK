@@ -2086,6 +2086,7 @@ const PAGES = [
             mouse behavior in online decision-making.
           </p>
           <p>You can now close this window. </p>
+          <p> PS: If you participated via SurveySwap, you can copy the following code: OHBQ-C0NY-STEI </p>
           <div class="card;">
             <strong>Contact</strong><br/>
             <p>Marlene Rüschoff: <a href="mailto:mruescho@smail.uni-koeln.de">mruescho@smail.uni-koeln.de</a></p>
