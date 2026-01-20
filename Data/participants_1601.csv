@@ -1,0 +1,111 @@
+participant_id,condition,interest,load,created_at,t1_detergent,t1_smartwatch,t1_speaker,assigned_category,selected_product,t1_bottle,t1_toothbrush,t1_backpack
+01caf55c-3693-4aa3-bac2-862230173a5e,LIHL,Low,High,2026-01-04 15:03:49.22322+00,5,4,2,Backpack,DB Daypack,1,3,1
+01f97700-9c92-4464-9bf8-21132acaa881,LILL,Low,Low,2025-12-30 13:40:09.906267+00,1,5,2,Electric Toothbrush,Oral-B Pro Series 3 (3500),3,1,3
+05bcca80-e838-4ef3-8ba8-39e870310e8f,HILL,High,Low,2025-12-30 19:28:33.512238+00,1,3,4,Water Bottle,24 Bottles - Clima Bottle,5,4,5
+09836b97-00f6-47f3-b9aa-c34ad5867121,LIHL,Low,High,2025-12-12 10:11:43.646162+00,1,4,4,Detergent,Ariel All-in-1 Pods,2,2,4
+0c8e7770-1c3e-40d4-af3e-561d63ec9aa3,LIHL,Low,High,2025-12-23 10:46:44.031102+00,1,4,3,Water Bottle,720° DGREE noLimit Bottle,1,1,2
+10bcc14f-7fd9-4646-80bc-7eff4d2e1097,LILL,Low,Low,2025-12-18 19:31:12.714337+00,2,4,3,Water Bottle,Nalgene Water Bottle,2,2,3
+10e43c6b-430c-47be-8c7e-acfe0fe439b5,HILL,High,Low,2025-12-19 09:08:13.739759+00,1,4,4,Smartwatch,Apple Watch Series 11,3,3,2
+125fe34e-d1f0-498a-8fd0-5d0cf21e030d,LILL,Low,Low,2026-01-08 16:14:39.172204+00,2,4,4,Water Bottle,24 Bottles - Clima Bottle,1,2,3
+15b9dd42-a1f4-43d2-a040-9bfa65d63082,HIHL,High,High,2026-01-04 08:42:59.026059+00,2,4,5,Speaker,Sonos Era 100,1,5,5
+16e465b5-0737-45c3-88f1-23f4bf91b9c5,HIHL,High,High,2026-01-11 20:14:01.300892+00,,,,,,,,
+1826a545-f6f3-47b9-a091-81477ba89250,LILL,Low,Low,2025-12-02 14:17:33.718725+00,2,4,4,Water Bottle,Waterdrop All-Purpose Sport Bottle,2,3,4
+21e9b22a-8b1c-4ce7-ab1e-b805e86aaf46,LIHL,Low,High,2025-12-04 14:24:06.880593+00,1,5,2,Backpack,Kapten & Son Helsinki Pro,1,2,1
+23242b4f-c591-42a9-98cd-e26b42ba18ad,LIHL,Low,High,2025-12-02 16:01:03.288525+00,2,4,4,Detergent,Denk mit – Ultra Sensitive,3,2,4
+241ca21f-0214-47fa-933c-b2c656f1819d,LIHL,Low,High,2025-12-09 13:03:09.215946+00,3,3,5,Backpack,Patagonia Black Hole Micro,2,4,2
+2a788a65-9288-433d-8ecb-788fe69b57cd,HILL,High,Low,2025-12-08 12:28:02.770817+00,2,4,3,Electric Toothbrush,Oral-B iO Series 5,3,4,4
+2b5fd31a-dc2d-4c05-95ff-75759c2649bf,LILL,Low,Low,2026-01-04 15:33:07.220536+00,1,5,4,Detergent,Weißer Riese,4,3,4
+2c25fe81-e77f-42e9-a479-03b5afe3458f,LILL,Low,Low,2025-12-23 10:13:59.297173+00,2,3,4,Detergent,Denk mit – Ultra Sensitive,3,2,4
+2dc94996-ea7a-44cc-be3b-0bbd7ec42803,HILL,High,Low,2025-12-03 10:32:23.73558+00,4,3,5,Water Bottle,Spottle Glass Bottle,5,3,3
+2f307df5-73a6-4ad9-95a1-c6498d36592c,LIHL,Low,High,2025-12-31 20:07:11.833523+00,2,3,4,Detergent,Denk mit – Ultra Sensitive,4,4,4
+302cd5a0-6497-4343-9fd1-2ec4452aa871,LIHL,Low,High,2025-12-05 05:36:48.021215+00,1,4,3,Detergent,Weißer Riese,2,2,4
+323f6fc6-61e4-4046-aef4-847a1bec0563,LILL,Low,Low,2025-12-18 16:12:31.907327+00,3,1,4,Smartwatch,Apple Watch Series 11,4,2,3
+34b28b92-79f6-485d-8575-d6a9fa2384d0,LILL,Low,Low,2025-12-13 17:09:02.727169+00,3,1,2,Smartwatch,Withings ScanWatch 2,3,4,5
+35e66184-3e42-45f7-bf6a-5d675bcac6da,HILL,High,Low,2025-11-28 11:25:37.957511+00,2,4,4,Backpack,Kapten & Son Helsinki Pro,4,4,4
+3d04f793-44fb-481f-99d5-1eb2fb1147e4,LIHL,Low,High,2026-01-04 12:18:30.097815+00,2,5,5,Water Bottle,720° DGREE noLimit Bottle,1,3,3
+3e13c82d-da28-4d66-ba9a-2d0a95d8b438,LIHL,Low,High,2025-12-23 15:52:22.274223+00,1,1,4,Smartwatch,Withings ScanWatch 2,1,1,1
+3ecc78d6-de66-4d06-8fbd-0bcecf32534a,HIHL,High,High,2026-01-01 17:36:23.684621+00,,,,,,,,
+3f225600-a051-470e-933a-a9a60cdc22da,LILL,Low,Low,2026-01-05 13:43:51.417089+00,3,4,4,Water Bottle,720° DGREE noLimit Bottle,1,4,1
+41d30187-dfd3-43cd-8504-1e8c11db983d,LIHL,Low,High,2025-12-02 17:50:34.863075+00,4,4,5,Detergent,Ecover Eco,4,5,4
+43cddaa8-35f1-4dc3-bcdf-fd80d1b7c5a8,LILL,Low,Low,2026-01-04 11:00:13.788376+00,3,1,1,Smartwatch,Withings ScanWatch 2,1,4,1
+44c59528-60b4-4714-bbce-2bf537e97e56,HILL,High,Low,2025-12-05 14:22:15.71926+00,4,4,4,Detergent,Ariel All-in-1 Pods,2,2,3
+458e3744-4439-4fdc-826c-5dc2212959b0,HIHL,High,High,2025-12-16 11:11:18.517913+00,4,4,4,Smartwatch,Apple Watch Series 11,2,4,4
+4a16ecf4-0324-4baf-a38f-1ea98ce73fc3,HILL,High,Low,2025-12-12 10:00:26.755956+00,2,5,3,Smartwatch,Apple Watch Series 11,2,2,1
+4aa8ea4c-b876-4599-a707-1bad68e2ac47,HIHL,High,High,2025-12-12 08:25:00.36094+00,3,2,2,Detergent,Denk mit – Ultra Sensitive,2,2,2
+4b7264c1-03ae-4401-ae7b-3d5418e244fa,HIHL,High,High,2025-12-07 13:05:40.093513+00,4,5,3,Smartwatch,Garmin Venu 4,2,2,4
+4b735901-9e3e-43de-8dd8-54e74dcf0910,LIHL,Low,High,2025-12-04 12:28:00.325901+00,3,5,5,Water Bottle,24 Bottles - Clima Bottle,2,4,5
+4b8b5d28-8ca9-4b2d-be09-796cd60ff22f,LIHL,Low,High,2025-11-30 13:35:58.951588+00,1,3,4,Detergent,Denk mit – Ultra Sensitive,2,3,4
+4e34fd5c-de28-4897-8706-dee0881a4e37,HIHL,High,High,2026-01-08 12:27:54.473569+00,,,,,,,,
+50af3813-4730-4b8e-b200-16ba76811d68,HIHL,High,High,2025-12-06 13:13:34.746116+00,2,3,4,Electric Toothbrush,Oral-B Pro Series 3 (3500),2,4,3
+50cb55ec-c55f-4275-b3f8-a119e6ae6ef1,HILL,High,Low,2025-12-22 18:24:19.952629+00,1,1,3,Speaker,JBL Charge 5,1,1,3
+51381787-c3a4-4a69-a44d-0750124ee2ad,HIHL,High,High,2025-11-29 11:38:09.810689+00,2,4,4,Backpack,Kapten & Son Helsinki Pro,2,3,4
+51c72b18-d63d-4293-a20a-58955ea921f9,HIHL,High,High,2025-12-02 14:45:09.117195+00,1,2,5,Speaker,B&O Beosound Explore,1,1,3
+51eeb71d-7fb3-47dc-ae2a-00e20701fa68,HILL,High,Low,2025-12-02 20:45:20.932931+00,4,3,4,Speaker,Sonos Era 100,2,2,1
+569e45be-14e3-477a-a09d-6ad321248d01,LIHL,Low,High,2026-01-11 11:55:42.166285+00,,,,,,,,
+5c30bf9f-df35-4a24-abb6-dc4a061e58d1,HILL,High,Low,2026-01-09 16:13:56.040239+00,,,,,,,,
+5dea9317-cab2-4546-bc93-eb063052932c,HILL,High,Low,2025-12-13 07:02:21.861904+00,3,1,1,Backpack,Kapten & Son Helsinki Pro,2,2,5
+5e38168c-c307-4cd5-a939-b94dca4a69e1,HIHL,High,High,2025-12-19 18:32:47.972401+00,3,2,5,Speaker,JBL Charge 5,3,2,4
+65b68a45-2b10-49f3-8a4a-8315ef68f969,HILL,High,Low,2025-12-06 19:22:33.007267+00,2,5,3,Smartwatch,Apple Watch Series 11,4,4,4
+676840dc-d964-41e5-ad5b-dba3ca8f0208,HIHL,High,High,2025-12-28 11:37:29.961152+00,2,2,4,Backpack,AEVOR Trip Pack,1,1,5
+68ec06a0-df0b-4061-bbee-6731a0867c41,HIHL,High,High,2025-12-05 13:46:57.054766+00,1,3,1,Backpack,The North Face Base Camp,4,2,5
+6b42fb53-9d79-42ea-b1a9-1432d91cc505,LILL,Low,Low,2025-12-02 14:47:01.378332+00,3,1,2,Electric Toothbrush,Oral-B Pro Series 3 (3500),4,1,4
+6c31c25e-c5dd-41fb-b6c9-87bea11b8a8f,HILL,High,Low,2025-12-23 13:02:13.238011+00,2,4,2,Backpack,DB Daypack,3,2,5
+6fde05fb-ad92-4919-a93f-50f610305a99,LIHL,Low,High,2026-01-05 19:52:12.470413+00,2,3,4,Detergent,Denk mit – Ultra Sensitive,3,2,3
+702af4cc-906d-40b9-aa8d-8e99be992bde,LIHL,Low,High,2026-01-05 14:00:23.205061+00,3,2,2,Smartwatch,Apple Watch Series 11,4,3,2
+708db045-62f6-4722-b354-0cd16fac4d4a,LILL,Low,Low,2025-12-02 22:01:39.075429+00,3,4,4,Detergent,Denk mit – Ultra Sensitive,3,3,3
+72068e71-91db-442d-8bcd-be58091a7210,LILL,Low,Low,2026-01-07 09:28:05.773836+00,3,4,2,Speaker,Sonos Era 100,3,3,4
+733a2e49-2496-4e7a-8429-aa233d6038e0,LIHL,Low,High,2025-12-06 13:14:46.484419+00,2,4,5,Electric Toothbrush,Philips Sonicare Series 5300,4,2,2
+76df77f4-c446-4c7b-a4ea-93a0a4804064,HILL,High,Low,2026-01-05 13:34:28.627722+00,3,2,3,Electric Toothbrush,Philips Sonicare Series 5300,4,5,3
+7d4a763e-d896-4860-93a1-bad23bde6d35,HIHL,High,High,2025-12-04 12:17:09.138756+00,1,4,4,Speaker,JBL Charge 5,2,2,3
+7e12c6e6-3302-459e-8b4e-6dc42fbc6bea,HILL,High,Low,2026-01-11 20:33:37.185307+00,2,4,4,Speaker,JBL Charge 5,2,3,4
+81fe54b8-48d6-4929-970f-a999e75bb7f1,HIHL,High,High,2025-12-12 09:47:04.156094+00,3,1,3,Backpack,The North Face Base Camp,4,3,5
+82b8fe9e-d03d-4a52-9b6c-867b927e02e1,LIHL,Low,High,2025-12-04 13:23:16.216977+00,3,4,4,Backpack,The North Face Base Camp,3,4,2
+8aef2386-7368-499e-a2c5-f4b5da726020,LILL,Low,Low,2025-12-03 16:33:16.63579+00,2,3,2,Detergent,Ecover Eco,4,2,4
+8e0c9b01-b81c-43c8-bb2f-35742dc5b516,LILL,Low,Low,2025-11-30 15:15:50.971787+00,3,2,4,Smartwatch,Withings ScanWatch 2,3,3,4
+97f16cb2-4702-4c1b-9ff8-ec0646a97f40,LIHL,Low,High,2026-01-01 13:42:40.808772+00,2,5,4,Detergent,Persil Sensitive Gel,3,2,4
+98102009-4760-4c36-822a-0e48ece5d5fb,HILL,High,Low,2026-01-05 13:27:43.459903+00,3,4,4,Electric Toothbrush,Philips Sonicare Series 5300,2,4,4
+9aeb0915-3140-4f9c-bc4b-6c5e899eb9da,HIHL,High,High,2025-12-04 12:00:21.487004+00,2,4,3,Backpack,Patagonia Black Hole Micro,1,3,4
+9daba0c2-5e80-465c-bbbd-f824d9c24657,HILL,High,Low,2025-12-06 15:17:58.447114+00,4,4,4,Electric Toothbrush,Wondersmile – WonderBrush PRO,5,5,3
+a283fcdf-6ba2-4329-8b8a-9bf558c8231a,LIHL,Low,High,2025-12-12 15:03:59.161995+00,1,4,4,Detergent,Denk mit – Ultra Sensitive,1,2,4
+a39dd60a-d5b3-4715-b83c-30600cad5cf3,LILL,Low,Low,2025-12-02 16:16:32.059963+00,1,5,4,Detergent,Persil Sensitive Gel,2,3,4
+a3b479f6-0430-44be-a23b-b1e580e826e0,HILL,High,Low,2025-12-10 15:16:49.472791+00,2,2,2,Backpack,AEVOR Trip Pack,2,2,5
+a586e2c1-54e8-45ba-963f-6cd8077f1e79,HILL,High,Low,2025-12-19 15:05:11.800226+00,3,2,5,Backpack,The North Face Base Camp,5,4,5
+a784408d-72a4-47b5-9e2f-6dac761f9ffd,HIHL,High,High,2025-12-08 13:46:38.824941+00,2,4,3,Backpack,pinqponq Purik Cliff,4,3,5
+a8557488-eb49-4d5f-ae1c-b72363c44416,HIHL,High,High,2025-12-13 13:17:15.695561+00,3,4,5,Speaker,Bose SoundLink Flex,4,2,4
+a8c6cbdf-4e55-4f28-b6fb-f6a08ec34a1c,LIHL,Low,High,2025-12-23 11:20:24.408101+00,,,,,,,,
+a941ce89-6cf0-4690-830f-cd35b97730fc,HIHL,High,High,2025-12-20 18:31:58.997968+00,1,2,2,Backpack,Patagonia Black Hole Micro,1,2,4
+aa394ce7-db73-4ab9-9735-eece7d619911,LILL,Low,Low,2025-12-08 08:29:00.383667+00,2,5,5,Water Bottle,24 Bottles - Clima Bottle,1,2,2
+ab15ea54-ae59-4532-b89c-ff821a0116c0,HILL,High,Low,2025-12-02 11:19:43.206514+00,5,1,4,Detergent,Persil Sensitive Gel,4,5,4
+aee0f8a7-c99c-42ae-94c4-d8ec1569987d,HIHL,High,High,2026-01-09 16:20:55.18933+00,3,3,4,Speaker,JBL Charge 5,2,3,4
+b73a72b8-9607-4085-9706-7f0f9b926843,HIHL,High,High,2025-12-02 16:13:29.010599+00,5,4,2,Detergent,Ecover Eco,3,4,4
+b9c7d764-2da0-4564-b4d7-914e99573ad0,HIHL,High,High,2025-12-07 18:30:44.437905+00,2,4,3,Smartwatch,Garmin Venu 4,4,3,3
+bad1870e-b99a-4d8e-b4ab-bf544d71d0ec,LILL,Low,Low,2025-12-06 13:50:55.665835+00,1,4,2,Backpack,pinqponq Purik Cliff,4,4,1
+bc0021f5-8e05-402d-9ce3-a9a63f51f658,HIHL,High,High,2026-01-05 13:47:00.25878+00,3,3,2,Detergent,Denk mit – Ultra Sensitive,2,1,3
+c1b520fe-6dfe-4175-8e0e-12f182397fe6,HILL,High,Low,2026-01-06 13:20:30.694153+00,2,4,5,Speaker,Marshall Kilburn II,2,1,3
+ca453e48-2aa7-4fdb-9e93-8837f7729333,HILL,High,Low,2026-01-15 10:58:59.568125+00,2,4,2,Smartwatch,Apple Watch Series 11,2,2,4
+cf397873-6203-4597-88de-171a739c1873,HILL,High,Low,2025-12-26 13:04:35.720175+00,4,4,1,Detergent,Denk mit – Ultra Sensitive,1,3,3
+d54c2d38-a344-4acc-a58f-98900e4f3d25,LIHL,Low,High,2025-12-19 23:29:10.147518+00,1,4,3,Detergent,Ecover Eco,3,2,4
+da1fc0bd-2274-48c6-935d-bd4303dfc0a7,HILL,High,Low,2025-12-19 14:03:27.390033+00,3,4,3,Smartwatch,Garmin Venu 4,2,2,3
+dab3e35d-a740-4109-9515-556e82ceb612,LIHL,Low,High,2026-01-12 16:41:34.383454+00,4,4,4,Electric Toothbrush,Wondersmile – WonderBrush PRO,4,4,4
+ded60c6e-ad75-4508-afdf-8caa0efe3410,LILL,Low,Low,2025-12-12 11:37:09.502445+00,3,1,2,Smartwatch,Withings ScanWatch 2,2,4,4
+e0706a41-3231-4374-a546-2d56f686f34c,LILL,Low,Low,2025-12-09 08:31:36.89131+00,2,3,4,Detergent,Ecover Eco,3,3,5
+e2de2353-af57-4348-aa6b-a0e7cfb609d1,HILL,High,Low,2026-01-03 14:24:13.70526+00,3,4,4,Smartwatch,Garmin Venu 4,3,3,4
+e3a761b1-e739-49a7-bd95-cf33e2a3813c,HIHL,High,High,2025-12-04 17:29:19.580419+00,2,5,4,Smartwatch,Apple Watch Series 11,3,4,2
+e4410d18-7cd2-4198-9c4a-67901559288f,HIHL,High,High,2026-01-04 15:29:38.477141+00,3,2,4,Backpack,Kapten & Son Helsinki Pro,3,4,4
+e4bdced0-2d54-4933-84d0-f3f80c285a06,LILL,Low,Low,2025-12-05 08:00:39.106472+00,2,4,4,Detergent,Ecover Eco,4,4,4
+e61b4eb5-dbda-48c1-b18a-899e7395c612,LIHL,Low,High,2026-01-11 13:24:50.196871+00,2,3,3,Detergent,Lenor Powder,3,2,2
+e8d06654-451d-4d8f-b3f7-dd47d9317828,LILL,Low,Low,2026-01-01 16:30:18.296679+00,2,3,2,Detergent,Ariel All-in-1 Pods,4,3,4
+ea3dc494-f4e6-48c2-813c-6de68d7a45e8,LIHL,Low,High,2026-01-05 13:27:18.809667+00,4,1,2,Electric Toothbrush,Oral-B Pro Series 3 (3500),1,1,2
+eb870660-81e6-42e1-be24-2ca77d82d4ce,LIHL,Low,High,2025-12-19 08:53:24.773925+00,4,4,2,Water Bottle,720° DGREE noLimit Bottle,2,5,5
+ec43a56a-d5a9-42a4-98fa-46840df7e093,LILL,Low,Low,2025-12-12 12:59:44.248089+00,2,4,4,Detergent,Ariel All-in-1 Pods,4,3,4
+ece916b9-8559-47bc-ab3f-74a74e7857f2,LILL,Low,Low,2026-01-11 12:20:10.020571+00,,,,,,,,
+ed69ac01-e271-4d3c-bf27-f6d78d635fe4,LILL,Low,Low,2025-12-12 10:16:13.045064+00,3,3,2,Water Bottle,Spottle Glass Bottle,2,2,4
+ed793ccf-cf9c-4b54-9951-a243e876cc49,LIHL,Low,High,2025-12-07 21:00:44.038879+00,3,2,4,Water Bottle,Spottle Glass Bottle,2,3,5
+f5a43f10-de46-4cf5-bce3-9df18286d3d4,HILL,High,Low,2026-01-02 16:00:28.037354+00,1,4,4,Smartwatch,Samsung Galaxy Watch 8,1,1,3
+f5b5e557-ecf7-4d49-a4b3-1c2cde77ea6f,HIHL,High,High,2025-12-12 10:07:55.085358+00,1,4,4,Speaker,JBL Charge 5,1,2,3
+f709f384-1ebc-4302-978c-d19289570ee9,HILL,High,Low,2025-12-06 12:19:07.999825+00,4,2,3,Detergent,Denk mit – Ultra Sensitive,4,3,4
+f755b8e1-5969-4c58-8b40-fbf859c41df2,HIHL,High,High,2025-12-26 08:29:55.76348+00,3,4,4,Speaker,,3,4,3
+f8350255-0cb7-49ec-a1ed-f6d608da537a,LILL,Low,Low,2025-12-04 12:33:21.760703+00,1,1,4,Detergent,Weißer Riese,4,2,4
+f848edac-87b3-458d-8ccc-7759502a11c9,LILL,Low,Low,2025-12-04 17:14:47.836733+00,1,4,4,Detergent,Lenor Powder,3,2,3
+f97814c0-fdd1-4911-ae4f-aa1459d6fa5b,HILL,High,Low,2025-12-02 17:39:26.98743+00,3,3,4,Speaker,Sonos Era 100,4,4,4
+fe672941-07cb-4dcc-9668-f50d2d067848,LIHL,Low,High,2025-12-19 15:11:05.143025+00,1,4,2,Detergent,Ariel All-in-1 Pods,3,2,3
