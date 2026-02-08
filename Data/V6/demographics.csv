@@ -1,0 +1,104 @@
+"participant_id","session_id","age","gender","education","employment","updated_at"
+"01caf55c-3693-4aa3-bac2-862230173a5e","e9f90cc4-4355-4f0e-be34-cd7a61189a56",56,"Female","A-Levels (Allgemeine Hochschulreife)","Full-Time",2026-01-04 15:19:48.94473
+"01f97700-9c92-4464-9bf8-21132acaa881","5569e475-ec72-4081-8d77-1256c55e8779",25,"Male","Bachelor's Degree","Working-Student / Temporary",2025-12-30 13:47:28.88858
+"05bcca80-e838-4ef3-8ba8-39e870310e8f","5b46de25-5e4a-4cf8-91bf-b2268c1321c0",25,"Female","Bachelor's Degree","Working-Student / Temporary",2025-12-30 19:35:45.020397
+"09836b97-00f6-47f3-b9aa-c34ad5867121","7f5432ca-dc2e-4c30-8ecf-33ebe1e958b4",26,"Male","Master's Degree","Full-Time",2025-12-12 10:17:08.700713
+"0c8e7770-1c3e-40d4-af3e-561d63ec9aa3","aed2659e-fc6e-4a03-9eea-7be2d281211b",26,"Male","Master's Degree","Full-Time",2025-12-23 10:53:48.972927
+"10bcc14f-7fd9-4646-80bc-7eff4d2e1097","87927c15-49d0-4962-b182-ab5a768263a6",25,"Male","Master's Degree","Full-Time",2025-12-18 19:39:21.838249
+"10e43c6b-430c-47be-8c7e-acfe0fe439b5","f4a35592-edb9-44d2-b455-a4c905170996",24,"Male","Master's Degree","Working-Student / Temporary",2025-12-19 09:16:21.616279
+"125fe34e-d1f0-498a-8fd0-5d0cf21e030d","d6031e01-23c5-4d03-b64d-cc7b74e8f284",57,"Male","Master's Degree","Full-Time",2026-01-08 16:24:55.016861
+"15b9dd42-a1f4-43d2-a040-9bfa65d63082","203e8e3b-4902-498a-b76b-9cf4d5e7f4b7",26,"Male","Master's Degree","Full-Time",2026-01-04 08:51:10.759647
+"1826a545-f6f3-47b9-a091-81477ba89250","d7e74b75-65e8-4b6b-8587-86fa638e2473",24,"Male","Bachelor's Degree","Working-Student / Temporary",2025-12-02 14:23:07.403482
+"21e9b22a-8b1c-4ce7-ab1e-b805e86aaf46","6f8f1632-fc99-4cd6-85de-6d77cd493874",34,"Male","Master's Degree","Full-Time",2025-12-04 14:31:39.718209
+"23242b4f-c591-42a9-98cd-e26b42ba18ad","901361b0-ae4e-42ac-9c6c-06d6b395fe6e",26,"Male","Master's Degree","Working-Student / Temporary",2025-12-02 16:06:27.562627
+"241ca21f-0214-47fa-933c-b2c656f1819d","cc068684-3570-4674-8df9-fd78509f755e",63,"Male","FH-Diplomabschluss","Selbstständig",2025-12-09 13:16:02.296349
+"2a36f61f-3be1-4127-b878-3cc2adc0be75","5e10199b-0b57-4102-8044-95317fa4b50d",25,"Male","Bachelor's Degree","Working-Student / Temporary",2026-01-22 11:49:11.198224
+"2a788a65-9288-433d-8ecb-788fe69b57cd","3e05d04d-3487-4426-8079-827f77c7778f",26,"Female","Bachelor's Degree","Working-Student / Temporary",2025-12-08 12:35:25.528499
+"2b5fd31a-dc2d-4c05-95ff-75759c2649bf","920d0d1c-6367-43f8-9577-804bd4579f92",26,"Female","Bachelor's Degree","Working-Student / Temporary",2026-01-04 15:37:51.503634
+"2c25fe81-e77f-42e9-a479-03b5afe3458f","642f7c04-6ed4-411a-8c12-c44d1ef19caa",28,"Male","Bachelor's Degree","Self employed",2025-12-23 10:20:05.124965
+"2dc94996-ea7a-44cc-be3b-0bbd7ec42803","9312cfcb-5ccd-4fea-9a80-f14027732f7a",26,"Male","Master's Degree","Full-Time",2025-12-03 10:40:05.864003
+"2f307df5-73a6-4ad9-95a1-c6498d36592c","04468f7b-130a-4ac3-8bec-d18daf1a4875",27,"Male","Master's Degree","Full-Time",2025-12-31 20:11:20.428222
+"302cd5a0-6497-4343-9fd1-2ec4452aa871","d287f848-c1dd-41a4-8cb1-dc6e4da4cd23",25,"Male","PhD","Full-Time",2025-12-05 05:42:35.454723
+"323f6fc6-61e4-4046-aef4-847a1bec0563","85ce805e-978b-45cc-a342-8710ede12f4b",25,"Female","Master's Degree","Prefer not to say",2025-12-18 16:19:28.576471
+"35e66184-3e42-45f7-bf6a-5d675bcac6da","53052eb5-5f4d-4d76-bf12-47e14aab1366",25,"Female","Bachelor's Degree","Working-Student / Temporary",2025-11-28 11:30:55.297531
+"3d04f793-44fb-481f-99d5-1eb2fb1147e4","f3c3345f-f5e5-465d-a946-2235bbeb675c",58,"Female","A-Levels (Allgemeine Hochschulreife)","Part-Time",2026-01-04 12:29:29.199481
+"3f225600-a051-470e-933a-a9a60cdc22da","df45b8aa-57e9-49f5-b485-0eb662b39a4c",32,"Female","Bachelor's Degree","Full-Time",2026-01-05 13:53:29.646992
+"40dd8dc8-0dfe-4644-a0e4-28121e4e7b42","cbf8d7c9-c0ec-41f5-bd00-97874bfa5fb9",49,"Male","Vocational Training (Ausbildung/Berufskolleg)","Full-Time",2026-01-22 08:47:50.766287
+"41d30187-dfd3-43cd-8504-1e8c11db983d","cc9146a3-2aa3-4309-a7b5-b9c29b926428",25,"Female","Master's Degree","Working-Student / Temporary",2025-12-02 18:01:39.311221
+"43cddaa8-35f1-4dc3-bcdf-fd80d1b7c5a8","71e42c2f-760b-4add-81a3-bf47eb6d03de",66,"Female","Secondary School (Real- oder Hauptschulabschulabschluss)","Retired",2026-01-04 11:12:42.754058
+"44c59528-60b4-4714-bbce-2bf537e97e56","b706e323-787a-4ef8-b369-55482871961f",66,"Male","Master's Degree","Retired",2025-12-05 14:29:49.962925
+"458e3744-4439-4fdc-826c-5dc2212959b0","e69f5a0e-b81e-4f0c-930a-24b5dd6f8ca6",23,"Female","Master's Degree","Working-Student / Temporary",2025-12-16 11:16:01.206367
+"4828aa3f-bcbc-4b53-8555-b01fceb42341","6b126624-8279-4285-af60-84b12936d331",28,"Male","Master's Degree","Full-Time",2026-01-22 14:27:54.25606
+"48c12875-5184-434e-9495-d52cad451850","48ec9a81-fc46-4f2b-9cbf-2c6215f7e6e6",27,"Female","Master's Degree","Full-Time",2026-01-22 11:26:04.385884
+"4a16ecf4-0324-4baf-a38f-1ea98ce73fc3","9c0b75f0-c77e-4df0-a953-cce5d9635dfa",26,"Female","Master's Degree","Working-Student / Temporary",2025-12-12 10:08:29.073269
+"4aa8ea4c-b876-4599-a707-1bad68e2ac47","b82be074-d42b-469c-8162-8ecd69a43c18",27,"Female","Bachelor's Degree","Full-Time",2025-12-12 08:42:27.232906
+"4b7264c1-03ae-4401-ae7b-3d5418e244fa","137c7932-d0e4-435d-862d-268edffea572",25,"Female","Master's Degree","Full-Time",2025-12-07 13:12:41.641786
+"4b735901-9e3e-43de-8dd8-54e74dcf0910","d2fb7dee-0c44-44be-bb88-8c362e290690",29,"Female","Master's Degree","Full-Time",2025-12-04 12:32:47.662547
+"4b8b5d28-8ca9-4b2d-be09-796cd60ff22f","50cc759c-ea1f-4b6b-bfc0-7c322203f591",26,"Male","Bachelor's Degree","Working-Student / Temporary",2025-11-30 13:39:15.490892
+"50af3813-4730-4b8e-b200-16ba76811d68","d0570796-c809-422d-ac86-8ad5a2f76898",23,"Female","A-Levels (Allgemeine Hochschulreife)","Full-Time",2025-12-06 13:20:33.767036
+"50cb55ec-c55f-4275-b3f8-a119e6ae6ef1","f11400ce-ba5d-44fc-a2b3-927c243770f4",25,"Female","Bachelor's Degree","Working-Student / Temporary",2025-12-22 18:38:48.472264
+"51381787-c3a4-4a69-a44d-0750124ee2ad","05764de8-c886-4fe9-bcaf-313de86f3c97",29,"Female","Master's Degree","Full-Time",2025-11-29 11:59:47.830507
+"51c72b18-d63d-4293-a20a-58955ea921f9","ec042234-bf98-4ffb-b267-e13342adcbef",30,"Male","Bachelor's Degree","Working-Student / Temporary",2025-12-02 14:53:13.189009
+"51eeb71d-7fb3-47dc-ae2a-00e20701fa68","00401c88-df99-482c-b197-8caff443ec06",25,"Male","Bachelor's Degree","Working-Student / Temporary",2025-12-02 20:54:10.415269
+"5dea9317-cab2-4546-bc93-eb063052932c","dfe62a65-7ec0-490d-b104-d9fc629f9eb7",59,"Female","Master's Degree","Part-Time",2025-12-13 07:09:12.68937
+"5e38168c-c307-4cd5-a939-b94dca4a69e1","b9a10a5d-2ff2-4928-8404-1701a2f65e95",31,"Male","Master's Degree","Full-Time",2025-12-19 18:43:11.54085
+"65b68a45-2b10-49f3-8a4a-8315ef68f969","eb6f509a-020e-42f6-9644-a8208e915f89",28,"Female","Bachelor's Degree","Full-Time",2025-12-06 19:30:01.101168
+"676840dc-d964-41e5-ad5b-dba3ca8f0208","cc91c864-e9f4-48d1-8bcc-883c1dd1d607",26,"Male","Vocational Training (Ausbildung/Berufskolleg)","Working-Student / Temporary",2025-12-28 11:42:23.043486
+"68ec06a0-df0b-4061-bbee-6731a0867c41","b46534ba-6c3e-41f1-9170-3fdecef05df6",32,"Male","Bachelor's Degree","Full-Time",2025-12-05 13:53:28.315446
+"6b42fb53-9d79-42ea-b1a9-1432d91cc505","d4592282-f7e5-4e21-8eff-a3bd95538e5e",25,"Female","Bachelor's Degree","Working-Student / Temporary",2025-12-02 14:54:24.241576
+"6c31c25e-c5dd-41fb-b6c9-87bea11b8a8f","41d3f1dd-6a8b-4341-904c-78898c25dfd2",23,"Female","Master's Degree","Working-Student / Temporary",2025-12-23 13:06:33.005203
+"6fde05fb-ad92-4919-a93f-50f610305a99","1dcac08d-b866-4a5c-bcaa-d724b5ac6ec3",24,"Female","Bachelor's Degree","Working-Student / Temporary",2026-01-05 20:03:30.039154
+"702af4cc-906d-40b9-aa8d-8e99be992bde","dee8b7b7-6b35-4358-afeb-600b205c649b",21,"Female","Vocational Training (Ausbildung/Berufskolleg)","Full-Time",2026-01-05 14:15:33.355846
+"708db045-62f6-4722-b354-0cd16fac4d4a","a9a810bb-ba8b-436f-a0d0-c95c59589916",24,"Male","Master's Degree","Working-Student / Temporary",2025-12-02 22:07:08.233049
+"72068e71-91db-442d-8bcd-be58091a7210","8529cb44-8521-42e2-ae92-73c43095afc9",60,"Female","A-Levels (Allgemeine Hochschulreife)","Part-Time",2026-01-07 09:35:12.771084
+"733a2e49-2496-4e7a-8429-aa233d6038e0","717ce3b4-2469-4dd0-b5d5-4c40a45c780d",25,"Female","Master's Degree","Unemployed",2025-12-06 13:22:28.498724
+"76df77f4-c446-4c7b-a4ea-93a0a4804064","b030c3d5-7efe-4376-9277-d447c3141bff",22,"Female","Vocational Training (Ausbildung/Berufskolleg)","Full-Time",2026-01-05 13:43:36.791379
+"7d4a763e-d896-4860-93a1-bad23bde6d35","e23978a4-497e-4324-b061-51d43e85bb39",26,"Male","Master's Degree","Full-Time",2025-12-04 12:27:35.177365
+"7e12c6e6-3302-459e-8b4e-6dc42fbc6bea","a5b41e6a-e497-450f-bab0-48ad51c756f5",26,"Male","Bachelor's Degree","Full-Time",2026-01-11 20:48:54.252117
+"81fe54b8-48d6-4929-970f-a999e75bb7f1","a7105bfa-e734-47ed-8fe4-7908ee320106",27,"Female","Master's Degree","Full-Time",2025-12-12 09:51:14.42122
+"82b8fe9e-d03d-4a52-9b6c-867b927e02e1","5dbe670a-6fd0-47f2-8e6d-37f213766918",40,"Male","PhD","Full-Time",2025-12-04 13:29:57.945409
+"8aef2386-7368-499e-a2c5-f4b5da726020","4f550c0c-41ce-4a73-a2d3-5560157ea87a",25,"Female","Master's Degree","Working-Student / Temporary",2025-12-03 16:39:52.066125
+"8e0c9b01-b81c-43c8-bb2f-35742dc5b516","8e2594db-d6db-41b7-b483-e47e26bac394",24,"Female","Bachelor's Degree","Working-Student / Temporary",2025-11-30 15:23:40.047473
+"97f16cb2-4702-4c1b-9ff8-ec0646a97f40","35232f1e-6110-4d84-b396-811d770f87a3",26,"Female","Bachelor's Degree","Full-Time",2026-01-01 14:15:46.440269
+"98102009-4760-4c36-822a-0e48ece5d5fb","606943a5-c712-4c14-bc67-a8959ab5f113",37,"Male","Master's Degree","Full-Time",2026-01-05 13:33:27.691612
+"9aeb0915-3140-4f9c-bc4b-6c5e899eb9da","a78cc567-daa2-4ca7-97ff-5edc99299982",25,"Male","Master's Degree","Full-Time",2025-12-04 12:14:08.871312
+"9daba0c2-5e80-465c-bbbd-f824d9c24657","ba152446-6bb8-4a9c-a46a-c43f56a961f9",28,"Male","Bachelor's Degree","Working-Student / Temporary",2025-12-06 15:23:34.02511
+"a283fcdf-6ba2-4329-8b8a-9bf558c8231a","d2c3bb86-51bf-41e1-a636-108ef11909e8",34,"Male","Master's Degree","Full-Time",2025-12-12 15:11:52.584577
+"a39dd60a-d5b3-4715-b83c-30600cad5cf3","20ad31de-5361-4ffd-bd03-6c4a14caa7c7",31,"Male","Master's Degree","Full-Time",2025-12-02 16:25:39.594911
+"a3b479f6-0430-44be-a23b-b1e580e826e0","88ae2336-2dea-451e-aaba-110c63b4c8a4",29,"Male","Master's Degree","Working-Student / Temporary",2025-12-10 15:23:19.453496
+"a586e2c1-54e8-45ba-963f-6cd8077f1e79","80dcc47e-3659-495b-9fcf-27e7d4fcc5b9",25,"Female","Master's Degree","Full-Time",2025-12-19 15:10:04.684627
+"a784408d-72a4-47b5-9e2f-6dac761f9ffd","1fdfc214-6359-4152-8845-2796c4df5735",26,"Female","Master's Degree","Self-employed",2025-12-08 13:52:31.130488
+"a8557488-eb49-4d5f-ae1c-b72363c44416","d7165966-8a03-4d10-ac74-08302057cfe0",25,"Male","Master's Degree","Working-Student / Temporary",2025-12-13 14:44:24.888093
+"a941ce89-6cf0-4690-830f-cd35b97730fc","d07fed36-0056-4bc9-85be-8f48a76b77ce",29,"Male","Master's Degree","Full-Time",2025-12-20 18:36:55.876986
+"aa394ce7-db73-4ab9-9735-eece7d619911","6d31dbe6-2731-4dd6-8016-2842810f3c32",27,"Female","Master's Degree","Full-Time",2025-12-08 08:33:52.689937
+"ab15ea54-ae59-4532-b89c-ff821a0116c0","96c6c1f1-c1f4-4790-af0b-560e925b4e69",41,"Female","Master's Degree","Part-Time",2025-12-02 11:27:10.618307
+"aee0f8a7-c99c-42ae-94c4-d8ec1569987d","d6c3a1a0-ab3a-4024-b50c-1992f10c916d",24,"Male","Bachelor's Degree","Working-Student / Temporary",2026-01-09 16:38:28.323722
+"b73a72b8-9607-4085-9706-7f0f9b926843","4b92c4c8-58a0-4475-874d-31edf26cb34c",61,"Female","A-Levels (Allgemeine Hochschulreife)","Full-Time",2025-12-02 16:23:54.822056
+"b9c7d764-2da0-4564-b4d7-914e99573ad0","753e73d0-42dd-4041-b353-1c3ed370ede5",31,"Male","Bachelor's Degree","Full-Time",2025-12-07 18:36:26.724818
+"bad1870e-b99a-4d8e-b4ab-bf544d71d0ec","a896f8dd-e72b-4ddf-a21b-fdfff8af7628",27,"Female","Master's Degree","Full-Time",2025-12-06 13:56:30.098252
+"bc0021f5-8e05-402d-9ce3-a9a63f51f658","48eff82d-8ad9-4bc3-b852-c97b61b495a2",46,"Male","Bachelor's Degree","Full-Time",2026-01-05 13:52:48.93769
+"ca453e48-2aa7-4fdb-9e93-8837f7729333","fd49a9d2-5dae-49b5-89da-bf134d994efa",21,"Female","Vocational Training (Ausbildung/Berufskolleg)","Full-Time",2026-01-15 13:20:39.988398
+"cf397873-6203-4597-88de-171a739c1873","5bd41024-b5e4-47bf-989c-9245509f9ab4",56,"Female","Vocational Training (Ausbildung/Berufskolleg)","Full-Time",2025-12-26 13:14:08.489618
+"d54c2d38-a344-4acc-a58f-98900e4f3d25","27836eda-5747-4607-b5c4-438065c4ef09",26,"Male","Master's Degree","Unemployed",2025-12-19 23:31:55.401013
+"da1fc0bd-2274-48c6-935d-bd4303dfc0a7","6601c68a-3a6d-4b52-bca0-d4114228063c",26,"Female","Master's Degree","Full-Time",2025-12-19 14:50:05.568106
+"dab3e35d-a740-4109-9515-556e82ceb612","fd56db76-3a4b-4405-acae-8672b880d0c9",35,"Female","PhD","Full-Time",2026-01-12 16:42:27.22859
+"ded60c6e-ad75-4508-afdf-8caa0efe3410","20f13844-3ab9-49e6-b4ad-1b999d317aac",28,"Female","A-Levels (Allgemeine Hochschulreife)","Full-Time",2025-12-12 11:42:30.422728
+"e0706a41-3231-4374-a546-2d56f686f34c","0b4d9e24-69ec-4e63-9383-72999e0f4f96",29,"Female","Bachelor's Degree","Full-Time",2025-12-09 08:38:49.556828
+"e2de2353-af57-4348-aa6b-a0e7cfb609d1","c38c3671-9ce3-4447-ab97-16a3c2477be6",29,"Male","Master's Degree","Full-Time",2026-01-03 14:30:42.522645
+"e3a761b1-e739-49a7-bd95-cf33e2a3813c","979828f2-f811-4c1f-afcc-d0d7e911659c",31,"Male","Master's Degree","Full-Time",2025-12-04 17:32:07.950633
+"e4410d18-7cd2-4198-9c4a-67901559288f","f0ce899e-bb97-45ac-8a60-67109865737e",32,"Female","Master's Degree","Full-Time",2026-01-04 15:33:02.846652
+"e4bdced0-2d54-4933-84d0-f3f80c285a06","33768330-72ae-4c79-9679-2bdd80529547",26,"Female","Bachelor's Degree","Working-Student / Temporary",2025-12-05 08:04:46.692294
+"e61b4eb5-dbda-48c1-b18a-899e7395c612","13958b32-13b4-4ee1-95ae-94562a814161",19,"Female","A-Levels (Allgemeine Hochschulreife)","Student",2026-01-11 13:32:55.620552
+"e8d06654-451d-4d8f-b3f7-dd47d9317828","8ef0dbf7-b4d4-45e8-9289-a4530ec0432d",26,"Male","Vocational Training (Ausbildung/Berufskolleg)","Full-Time",2026-01-01 16:38:43.236471
+"ea3dc494-f4e6-48c2-813c-6de68d7a45e8","c9ad284d-d6bf-448c-a0c4-898a0439e148",32,"Female","Vocational Training (Ausbildung/Berufskolleg)","Full-Time",2026-01-05 13:35:52.934035
+"eb870660-81e6-42e1-be24-2ca77d82d4ce","3392a48a-09a3-4fb8-88de-94366e96acac",25,"Female","Bachelor's Degree","Full-Time",2025-12-19 09:00:50.334697
+"ec43a56a-d5a9-42a4-98fa-46840df7e093","d3262e68-8bfb-4991-af69-3146fa332182",28,"Female","Master's Degree","Full-Time",2025-12-12 13:05:17.82849
+"ed793ccf-cf9c-4b54-9951-a243e876cc49","fea3f9db-6460-4e2b-93b9-b39cba5dc77c",23,"Female","A-Levels (Allgemeine Hochschulreife)","Working-Student / Temporary",2025-12-07 21:11:14.086997
+"f5a43f10-de46-4cf5-bce3-9df18286d3d4","db9e4958-633f-4dd6-ba5b-f6bb47c2135f",19,"Male","Vocational Training (Ausbildung/Berufskolleg)","Full-Time",2026-01-02 16:07:55.3748
+"f5b5e557-ecf7-4d49-a4b3-1c2cde77ea6f","d06110bb-f28b-41f9-97e9-4f6c59052d41",22,"Male","Master's Degree","Full-Time",2025-12-12 10:16:22.92311
+"f709f384-1ebc-4302-978c-d19289570ee9","81b1a3f0-3064-4b56-b683-708399ddd59d",24,"Female","Bachelor's Degree","Working-Student / Temporary",2025-12-06 12:23:49.425738
+"f8350255-0cb7-49ec-a1ed-f6d608da537a","057b88f0-2e69-4413-97c9-747a9eb5698e",25,"Male","Bachelor's Degree","Full-Time",2025-12-04 12:38:08.162402
+"f848edac-87b3-458d-8ccc-7759502a11c9","573eaa9a-ba7f-4df9-94c4-89d9149a3b5d",28,"Male","Master's Degree","Full-Time",2025-12-04 17:19:36.55012
+"f97814c0-fdd1-4911-ae4f-aa1459d6fa5b","d4bbe4c5-83a9-4f3c-893f-ed7e95438d34",30,"Female","Master's Degree","Full-Time",2025-12-02 17:46:05.996053
+"fc278ad6-5094-4033-8af8-1a9f63a49278","d805e324-fdcf-4fd3-87b5-77361be154e3",26,"Female","Master's Degree","Working-Student / Temporary",2026-01-22 07:54:57.822134
+"fe672941-07cb-4dcc-9668-f50d2d067848","b55e506c-9dbb-4020-8795-dc6aea0cd09b",24,"Female","Master's Degree","Working-Student / Temporary",2025-12-19 15:18:38.315839

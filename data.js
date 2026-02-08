@@ -1,7 +1,6 @@
-/* =========================================================================
-   PRODUCTS
-   ======================================================================= */
-// Conditions: Low Load => show 3 attributes; High Load => show 6 attributes.
+// ############################# PRODUCTS #############################
+// #####
+
 
 export const CATEGORIES_FOR_TASK2 = ["Detergent", "Smartwatch", "Speaker", "Water Bottle","Electric Toothbrush", "Backpacks"]; // "Speaker" = Bluetooth-Speaker list
 
@@ -94,6 +93,7 @@ export const PRODUCTS = {
       ]
     }
   ],
+
   //////////////////////////// SMARTWATCHES ////////////////////////////
   Smartwatch: [
     {
@@ -184,6 +184,7 @@ export const PRODUCTS = {
       ]
     }
   ],
+
   //////////////////////////// SPEAKERS ////////////////////////////
   Speaker: [
     {
@@ -274,9 +275,10 @@ export const PRODUCTS = {
         "Connectivity: Bluetooth",
         "Stereo pairing: You can link two Beosound Explore units for stereo sound"
         
-      ]
+      ] 
     }
   ],
+
   //////////////////////////// WATER BOTTLES ////////////////////////////
   "Water Bottle": [
     {
@@ -364,6 +366,7 @@ export const PRODUCTS = {
       ]
     }
   ], 
+
     //////////////////////////// ELECTRIC TOOTHBRUSHES ////////////////////////////
     "Electric Toothbrush": [
     {
@@ -460,6 +463,7 @@ export const PRODUCTS = {
       ]
     }
   ],
+
   //////////////////////////// BACKPACKS ////////////////////////////
   Backpack : [
   {

@@ -1,19 +1,22 @@
-// app.js
+// ######################### EXPERIMENT / WEBSITE #########################
 // Requires: data.js (exports PRODUCTS), styles.css, index.html with <main id="app">
 
+// Import Products
 import { PRODUCTS, CATEGORIES_FOR_TASK2 } from './data.js';
 
-/* =========================================================================
-   0) SUPABASE SETUP
-   ======================================================================= */
+// ######################################################################
+// 0) SUPABASE SETUP
+// ######################################################################
+
 const SUPABASE_URL = 'https://lmmddxshhvmylkkgrwwu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxtbWRkeHNoaHZteWxra2dyd3d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzOTQzMTUsImV4cCI6MjA3NDk3MDMxNX0.6TpxotYqAnIpsqcL8bz9xzwUXTDaizbLFPtDUHM9nTY';
+const SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxtbWRkeHNoaHZteWxra2dyd3d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzOTQzMTUsImV4cCI6MjA3NDk3MDMxNX0.6TpxotYqAnIpsqcL8bz9xzwUXTDaizbLFPtDUHM9nTY';
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
-/* =========================================================================
-   1) UTILITIES & PERSISTENCE
-   ======================================================================= */
+// ######################################################################
+// 1) HELPERS
+// ######################################################################
 
 // DOM helpers
 const $ = (sel, node = document) => node.querySelector(sel);
@@ -38,24 +41,23 @@ function loadLS(key, fallback = null) {
   }
 }
 
-/* =========================================================================
-   1.1) DEVELOPMENT FLAGS (URL PARAMS) & RESET
-   ======================================================================= */
+// ######################################################################
+// 1.1) DEVELOPMENT FLAGS & RESET
+// ######################################################################
 
 // DEV OVERRIDES via URL:
 // ?load=high|low&interest=high|low&cat=Backpacks&cond=...&reset=1
 
-// DEV parser for query params + reset flag
 const DEV = (() => {
   const sp = new URLSearchParams(location.search);
   const normHL = v => (v && /^(high|low)$/i.test(v) ? v.toLowerCase() : null);
 
   return {
-    load: normHL(sp.get('load')),                          // 'high' | 'low' | null
-    interest: normHL(sp.get('interest')),                  // 'high' | 'low' | null
-    code: sp.get('cond') || null,                          // condition code override (optional)
-    cat: sp.get('cat') || null,                            // category override (optional)
-    reset: /^(1|true|yes)$/i.test(sp.get('reset') || '')   // reset flag
+    load: normHL(sp.get('load')), // 'high' | 'low' | null
+    interest: normHL(sp.get('interest')), // 'high' | 'low' | null
+    code: sp.get('cond') || null, // condition code override (optional)
+    cat: sp.get('cat') || null, // category override (optional)
+    reset: /^(1|true|yes)$/i.test(sp.get('reset') || '') // reset flag
   };
 })();
 
@@ -69,28 +71,28 @@ function nukeLocalState() {
   } catch {}
 }
 
-// Reset state at bootstrap if ?reset=1 etc. is present
+// Reset state at bootstrap if ?reset=1
 (function maybeReset() {
-  if (DEV.reset) {
-    nukeLocalState();
+  if (!DEV.reset) return;
 
-    // Remove ?reset parameter to avoid endless reload loops
-    const url = new URL(location.href);
-    url.searchParams.delete('reset');
-    location.replace(url.toString());
-  }
+  nukeLocalState();
+
+  // Remove ?reset parameter to avoid endless reload loops
+  const url = new URL(location.href);
+  url.searchParams.delete('reset');
+  location.replace(url.toString());
 })();
 
-/* =========================================================================
-   2) GLOBAL STATE
-   ======================================================================= */
+// ######################################################################
+// 2) GLOBAL STATE
+// ######################################################################
 
 let state = loadLS('exp_state', {
   session_id: uuid(),
   participant_id: null,
   started_at: new Date().toISOString(),
   pageIndex: 0,
-  condition: {},                // { code, interest, load }
+  condition: {}, 
   assignedCategory: null,
   mouse_buffer: [],
   answers: {
@@ -110,14 +112,15 @@ let state = loadLS('exp_state', {
   }
 });
 
-// Ensure nested state structures exist (helps with migrations / older LS versions)
+// Ensure nested state structures exist 
 function ensureStateShape() {
   state.answers = state.answers || {};
   state.answers.task1 = state.answers.task1 || {};
-  state.answers.task2 = state.answers.task2 || {
-    selected_prod_id: null,
-    selected_prod_name: null
-  };
+  state.answers.task2 =
+    state.answers.task2 || {
+      selected_prod_id: null,
+      selected_prod_name: null
+    };
   state.answers.paas = state.answers.paas ?? null;
   state.answers.nrq = state.answers.nrq || {};
   state.answers.pies = state.answers.pies || {};
@@ -135,15 +138,15 @@ function ensureStateShape() {
   persist();
 }
 
-ensureStateShape();
-
 function persist() {
   saveLS('exp_state', state);
 }
 
-/* =========================================================================
-   3) SUPABASE: IDENTITY & PARTICIPANT ROW
-   ======================================================================= */
+ensureStateShape();
+
+// ######################################################################
+// 3) SUPABASE: IDENTITY & PARTICIPANT ROW
+// ######################################################################
 
 const STORAGE_KEYS = {
   pid: 'participant_id',
@@ -209,21 +212,19 @@ async function ensureParticipant() {
   localStorage.setItem(STORAGE_KEYS.cond, partRow.condition);
   saveLS('exp_state', state);
 
-  /* -----------------------------------------------------------------------
-     DEV OVERRIDE BLOCK: override load / interest / condition / category
-     using URL parameters (development only)
-     ---------------------------------------------------------------------- */
+  // --------------------------------------------------------------------
+  // DEV OVERRIDE BLOCK: override load / interest / condition / category
+  // using URL parameters (development only)
+  // --------------------------------------------------------------------
   try {
-    // Override condition (load/interest/code) if DEV flags are set
+    // Override condition if DEV flags are set
     if (DEV.load || DEV.interest || DEV.code) {
       const up = {
         load: DEV.load || partRow.load,
         interest: DEV.interest || partRow.interest,
         condition:
           DEV.code ||
-          `dev:${(DEV.interest || partRow.interest) ?? '-'}-${
-            (DEV.load || partRow.load) ?? '-'
-          }`
+          `dev:${(DEV.interest || partRow.interest) ?? '-'}-${(DEV.load || partRow.load) ?? '-'}`
       };
 
       const { data: updRow, error: updErr } = await supabase
@@ -247,9 +248,8 @@ async function ensureParticipant() {
       }
     }
 
-    // Optional: override assigned category for Task 2 (?cat=Backpacks etc.)
+    // Override assigned category for Task 2 (?cat=Backpacks etc.)
     if (DEV.cat) {
-      // normalizeCategoryKey is assumed to exist globally or elsewhere
       state.assignedCategory = normalizeCategoryKey(DEV.cat);
       saveLS('exp_state', state);
       console.log('[DEV] Forced category:', state.assignedCategory);
@@ -261,10 +261,11 @@ async function ensureParticipant() {
   return { participant_id: pid, condition: partRow.condition };
 }
 
-/* =========================================================================
-   4) TASK 1: CATEGORIES & SAVE HELPERS
-   ======================================================================= */
+// ######################################################################
+// 4) TASK 1: CATEGORIES & SAVE HELPERS
+// ######################################################################
 
+// Categories
 const TASK1_CATEGORIES = [
   'Detergents',
   'Smartwatches',
@@ -274,6 +275,7 @@ const TASK1_CATEGORIES = [
   'Backpacks'
 ];
 
+// Columns in Supabase
 const T1_COLS = {
   Detergent: 't1_detergent',
   Detergents: 't1_detergent',
@@ -301,6 +303,7 @@ function t1ColumnFromCategory(label) {
   throw new Error(`No Task1 column mapping for category: "${label}"`);
 }
 
+// Save Ratings Function
 async function saveTask1Ratings(ratingsByColumn) {
   const { participant_id } = await ensureParticipant();
   const payload = { participant_id, ...ratingsByColumn };
@@ -308,9 +311,7 @@ async function saveTask1Ratings(ratingsByColumn) {
   const { data, error, status, statusText } = await supabase
     .from('participants')
     .upsert(payload, { onConflict: 'participant_id' })
-    .select(
-      'participant_id, t1_detergent, t1_smartwatch, t1_speaker, t1_bottle, t1_toothbrush, t1_backpack'
-    )
+    .select('participant_id, t1_detergent, t1_smartwatch, t1_speaker, t1_bottle, t1_toothbrush, t1_backpack')
     .maybeSingle();
 
   console.log('[Task1 UPSERT] payload:', payload);
@@ -325,17 +326,14 @@ async function saveTask1Ratings(ratingsByColumn) {
   return data;
 }
 
-/* --- Task 1 control handles (used in render/beforeNext) --- */
-
+// Task 1 control handles (used in render/beforeNext) ---
 let T1_CTRL = null;
 let T1_SAVE_TIMER = null;
 let T1_CONTAINER = null;
 let T1_LAST_SIG = null;
 
-/**
- * Collect Task 1 ratings from the table-based container.
- * Expects rows like: <tr data-cat="Detergents">...</tr>
- */
+
+// Collect Task 1 ratings from the table-based container
 function collectTask1RatingsFrom(container) {
   if (!container) throw new Error('collectTask1RatingsFrom: no container');
 
@@ -360,11 +358,11 @@ function collectTask1RatingsFrom(container) {
   return { ratings, missing };
 }
 
-/* =========================================================================
-   5) RANDOMIZATION HELPERS (Task 2)
-   ======================================================================= */
+// ######################################################################
+// 5) RANDOMIZATION HELPERS (Task 2)
+// ######################################################################
 
-// Deterministic hash from string → integer
+// Deterministic hash from string
 function hashStringToInt(str) {
   let h = 2166136261 >>> 0;
   for (let i = 0; i < str.length; i++) {
@@ -374,7 +372,7 @@ function hashStringToInt(str) {
   return h >>> 0;
 }
 
-// Pseudo-random generator (Mulberry32)
+// Pseudo-random generator
 function mulberry32(seed) {
   return function () {
     let t = (seed += 0x6d2b79f5);
@@ -401,10 +399,7 @@ async function saveTask2SelectionOrThrow() {
 
   const { error: upErr } = await supabase
     .from('participants')
-    .upsert(
-      { participant_id: state.participant_id, selected_product: name },
-      { onConflict: 'participant_id' }
-    );
+    .upsert({ participant_id: state.participant_id, selected_product: name }, { onConflict: 'participant_id' });
 
   if (upErr) throw upErr;
 
@@ -417,12 +412,11 @@ async function saveTask2SelectionOrThrow() {
   } catch {}
 }
 
-/* =========================================================================
-   6) QUESTIONNAIRE CONSTANTS & HELPERS
-   ======================================================================= */
+// ######################################################################
+// 6) QUESTIONNAIRE CONSTANTS & HELPERS
+// ######################################################################
 
-/* --- PAAS labels --- */
-
+////////////////////// PAAS labels //////////////////////
 const PAAS_LABELS = {
   1: 'very, very low mental effort',
   2: 'very low mental effort',
@@ -435,17 +429,16 @@ const PAAS_LABELS = {
   9: 'very, very high mental effort'
 };
 
-/* --- NRQ items --- */
-
+////////////////////// NRQ items //////////////////////
 const NRQ_ITEMS = [
-  {key: 'ICL1',text: 'For this task, many things needed to be kept in mind simultaneously.'},
-  {key: 'ICL2', text: 'This task was very complex.' },
-  {key: 'ECL1', text: 'During this task, it was exhausting to find the important information.'},
-  {key: 'ECL2', text: 'The design of this task was very inconvenient for learning.'},
-  {key: 'ECL3', text: 'During this task, it was difficult to recognize and link the crucial information.'}
+  { key: 'ICL1', text: 'For this task, many things needed to be kept in mind simultaneously.' },
+  { key: 'ICL2', text: 'This task was very complex.' },
+  { key: 'ECL1', text: 'During this task, it was exhausting to find the important information.' },
+  { key: 'ECL2', text: 'The design of this task was very inconvenient for learning.' },
+  { key: 'ECL3', text: 'During this task, it was difficult to recognize and link the crucial information.' }
 ];
 
-// Simple in-place shuffle using Math.random
+// Simple in-place shuffle
 function shuffleInPlace(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -454,42 +447,49 @@ function shuffleInPlace(arr) {
   return arr;
 }
 
-/* --- PIES items --- */
-
+////////////////////// PIES items //////////////////////
 const PIES_ITEMS = [
   { key: 'PIES1', t: (pp, ps) => `I am very interested in ${pp}.` },
   { key: 'PIES2', t: (pp, ps) => `${capFirst(pp)} are not very important to me.` },
   { key: 'PIES3', t: (pp, ps) => `I never think about ${pp}.` },
-  { key: 'PIES4', t: (pp, ps) => `In choosing a ${ps}, I would look for some specific features or options.`},
-  { key: 'PIES5', t: (pp, ps) => `If I chose a new ${ps}, I would investigate the available choices in depth.`},
+  { key: 'PIES4', t: (pp, ps) => `In choosing a ${ps}, I would look for some specific features or options.` },
+  { key: 'PIES5', t: (pp, ps) => `If I chose a new ${ps}, I would investigate the available choices in depth.` },
   { key: 'PIES6', t: (pp, ps) => `Some ${pp} are clearly better than others.` },
-  { key: 'PIES7', t: (pp, ps) => `If I were choosing a ${ps}, I would wish to learn about the available options in detail.`},
-  { key: 'PIES8', t: (pp, ps) => `When people see someone’s ${ps}, they form an opinion of that person.`},
+  { key: 'PIES7', t: (pp, ps) => `If I were choosing a ${ps}, I would wish to learn about the available options in detail.` },
+  { key: 'PIES8', t: (pp, ps) => `When people see someone’s ${ps}, they form an opinion of that person.` },
   { key: 'PIES9', t: (pp, ps) => `A ${ps} expresses a lot about the person who owns it.` },
   { key: 'PIES10', t: (pp, ps) => `You can learn a lot about a person by seeing their ${ps}.` },
-  { key: 'PIES11', t: (pp, ps) => `It is important to choose a ${ps} that matches one’s image.`},
-  { key: 'PIES_AC', t: () => 'Please select "Strongly agree" (5).'} // attention check
+  { key: 'PIES11', t: (pp, ps) => `It is important to choose a ${ps} that matches one’s image.` },
+  { key: 'PIES_AC', t: () => 'Please select "Strongly agree" (5).' } // attention check
 ];
 
 function piesNounsForCategory(cat) {
   switch ((cat || '').toLowerCase()) {
-    case 'detergent': return { pp: 'detergents', ps: 'detergent' };
-    case 'smartwatch': return { pp: 'smartwatches', ps: 'smartwatch' };
-    case 'speaker': return { pp: 'speaker', ps: 'speaker' };
-    case 'water bottle': return { pp: 'water bottles', ps: 'water bottle' };
-    case 'electric toothbrush': return { pp: 'electric toothbrushes', ps: 'electric toothbrush' };
-    case 'backpack': return { pp: 'backpacks', ps: 'backpack' };
-    default: return { pp: 'products', ps: 'product' };
+    case 'detergent':
+      return { pp: 'detergents', ps: 'detergent' };
+    case 'smartwatch':
+      return { pp: 'smartwatches', ps: 'smartwatch' };
+    case 'speaker':
+      return { pp: 'speaker', ps: 'speaker' };
+    case 'water bottle':
+      return { pp: 'water bottles', ps: 'water bottle' };
+    case 'electric toothbrush':
+      return { pp: 'electric toothbrushes', ps: 'electric toothbrush' };
+    case 'backpack':
+      return { pp: 'backpacks', ps: 'backpack' };
+    default:
+      return { pp: 'products', ps: 'product' };
   }
 }
 
-/* --- ECM items & helpers --- */
+////////////////////// ECM items //////////////////////
 
-// Scales:
-// CI, PU, C = 7-pt Likert (1 = Strongly disagree … 7 = Strongly agree)
-// Satisfaction = 7-pt semantic differentials
+// CI and PU
+
+// 7-pt Likert Scale (CI and PU)
 const ECM_HEADERS = [1, 2, 3, 4, 5, 6, 7];
 
+// Labels
 const ECM_LIKERT_LABELS = [
   'Strongly\ndisagree',
   'Disagree',
@@ -500,10 +500,11 @@ const ECM_LIKERT_LABELS = [
   'Strongly\nagree'
 ];
 
+// Items
 const ECM_CI_ITEMS = [
-  {key: 'CI1', text: 'I intend to continue using the chosen product rather than discontinue its use.'},
-  {key: 'CI2', text: 'My intentions are to continue using the chosen product rather than use any alternative means.'},
-  {key: 'CI3', text: 'If I could, I would like to discontinue my use of the chosen product.'} // reverse in analysis
+  { key: 'CI1', text: 'I intend to continue using the chosen product rather than discontinue its use.' },
+  { key: 'CI2', text: 'My intentions are to continue using the chosen product rather than use any alternative means.' },
+  { key: 'CI3', text: 'If I could, I would like to discontinue my use of the chosen product.' } // reverse in analysis
 ];
 
 // Dynamic PU items based on category
@@ -520,13 +521,14 @@ function getECM_PU_ITEMS(cat) {
   const end = endings[cat] || 'its daily use'; // fallback if category is unknown
 
   return [
-    {key: 'PU1', text: `Using the chosen product improves my performance in ${end}.`},
-    {key: 'PU2', text: `Using the chosen product increases my productivity in ${end}.`},
-    {key: 'PU3', text: `Using the chosen product enhances my effectiveness in ${end}.`},
-    {key: 'PU4', text: `Overall, the chosen product is useful in ${end}.`}
+    { key: 'PU1', text: `Using the chosen product improves my performance in ${end}.` },
+    { key: 'PU2', text: `Using the chosen product increases my productivity in ${end}.` },
+    { key: 'PU3', text: `Using the chosen product enhances my effectiveness in ${end}.` },
+    { key: 'PU4', text: `Overall, the chosen product is useful in ${end}.` }
   ];
 }
 
+// Satisfaction
 const ECM_SAT_ITEMS = [
   { key: 'S1', left: 'Very dissatisfied', right: 'Very satisfied' },
   { key: 'S2', left: 'Very displeased', right: 'Very pleased' },
@@ -534,13 +536,13 @@ const ECM_SAT_ITEMS = [
   { key: 'S4', left: 'Absolutely terrible', right: 'Absolutely delighted' }
 ];
 
-const capFirst = s =>
-  s && s.length ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+const capFirst = s => (s && s.length ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
-/* =========================================================================
-   7) DEMOGRAPHICS LABEL MAPS
-   ======================================================================= */
+// ######################################################################
+// 7) DEMOGRAPHICS LABEL MAPS
+// ######################################################################
 
+// Gender
 const GENDER_LABEL = {
   1: 'Male',
   2: 'Female',
@@ -548,6 +550,7 @@ const GENDER_LABEL = {
   4: 'Prefer not to say'
 };
 
+// Education
 const EDUCATION_LABEL = {
   1: 'No schooling completed',
   2: 'Secondary School (Real- oder Hauptschulabschulabschluss)',
@@ -560,6 +563,7 @@ const EDUCATION_LABEL = {
   9: 'Prefer not to say'
 };
 
+// Employment
 const EMPLOYMENT_LABEL = {
   1: 'Full-Time',
   2: 'Part-Time',
@@ -571,14 +575,14 @@ const EMPLOYMENT_LABEL = {
   8: 'Prefer not to say'
 };
 
-/* =========================================================================
-   8) PAGE DEFINITIONS
-   ======================================================================= */
+// ######################################################################
+// 8) PAGE DEFINITIONS
+// ######################################################################
 
 const PAGES = [
-  /* -----------------------------------------------------------------------
-     Intro
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  ///////////////////////////////  Intro ////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////
   {
     slug: 'instructions',
     title: 'Welcome',
@@ -595,25 +599,23 @@ const PAGES = [
           <p><strong>By continuing, you agree to participate in the study.</strong></p>
         </div>
       `;
-    }, 
-      beforeNext: async () => {
+    },
+    beforeNext: async () => {
       try {
-      // Hier wird beim ersten „Continue“-Klick alles initialisiert:
-      // - ensureParticipant() (in ensureSessionRow)
-      // - Session-Row
-      await ensureSessionRow();
-      return true;
-    } catch (e) {
-      console.error('Failed to init participant/session', e);
-      alert('An error occurred when starting the study. Please reload the page and try again.');
-      return false;
+        // Initialize everything on first "Continue":
+        await ensureSessionRow();
+        return true;
+      } catch (e) {
+        console.error('Failed to init participant/session', e);
+        alert('An error occurred when starting the study. Please reload the page and try again.');
+        return false;
+      }
     }
-  }
   },
 
-  /* -----------------------------------------------------------------------
-     Experimental Instructions (Overview page after consent)
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  ///////////////////// Experimental Instructions ///////////////////////
+  ///////////////////////////////////////////////////////////////////////
   {
     slug: 'experimental-instructions',
     title: 'Experimental Instructions',
@@ -632,10 +634,9 @@ const PAGES = [
     beforeNext: async () => true
   },
 
-
-  /* -----------------------------------------------------------------------
-     Task 1 — Product Rating
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  /////////////////////// Task 1 — Product Rating ///////////////////////
+  ///////////////////////////////////////////////////////////////////////
   {
     slug: 'task-1',
     title: 'Task 1',
@@ -644,6 +645,7 @@ const PAGES = [
       T1_CTRL?.abort();
       T1_CTRL = new AbortController();
       const { signal } = T1_CTRL;
+
       T1_CONTAINER = container;
       T1_LAST_SIG = null;
 
@@ -657,6 +659,7 @@ const PAGES = [
         return;
       }
 
+      // Labels
       const DESCRIPTORS = {
         1: 'Not interesting at all',
         2: 'Less interesting',
@@ -693,13 +696,17 @@ const PAGES = [
                 </tr>
               </thead>
               <tbody>
-                ${TASK1_CATEGORIES.map((cat, i) => {
-                  const col = T1_COLS?.[cat] || t1ColumnFromCategory(cat);
-                  const saved = state.answers?.task1?.[col] ?? null;
-                  return `
+                ${TASK1_CATEGORIES
+                  .map((cat, i) => {
+                    const col = T1_COLS?.[cat] || t1ColumnFromCategory(cat);
+                    const saved = state.answers?.task1?.[col] ?? null;
+
+                    return `
                     <tr data-cat="${cat}">
                       <td class="stmt">${cat}</td>
-                      ${HEADERS_5.map(v => `
+                      ${HEADERS_5
+                        .map(
+                          v => `
                         <td class="center">
                           <input
                             type="radio"
@@ -709,10 +716,13 @@ const PAGES = [
                             aria-label="${cat} = ${v}"
                           >
                         </td>
-                      `).join('')}
+                      `
+                        )
+                        .join('')}
                     </tr>
                   `;
-                }).join('')}
+                  })
+                  .join('')}
               </tbody>
             </table>
           </div>
@@ -726,7 +736,7 @@ const PAGES = [
 
       // Auto-save Task 1 ratings when all categories are filled
       const tryAutoSave = async () => {
-        if ((PAGES[state.pageIndex]?.slug) !== 'task-1') return;
+        if (PAGES[state.pageIndex]?.slug !== 'task-1') return;
 
         const { ratings, missing } = collectRatings();
         console.log('[Task1] collected ratings:', ratings, 'missing:', missing);
@@ -743,8 +753,8 @@ const PAGES = [
           await saveTask1Ratings(ratings);
           lastSavedSig = sig;
 
-          // Assign category based on ratings (best match chosen by DB function)
-          // Reload assigned_category from participants (trigger already set it)
+          // Assign category based on ratings 
+          // Reload assigned_category from participants 
           const { data: row, error: catErr } = await supabase
             .from('participants')
             .select('assigned_category')
@@ -757,7 +767,6 @@ const PAGES = [
           } else if (catErr) {
             console.warn('assigned_category fetch failed:', catErr);
           }
-
         } catch (e) {
           console.error('Task1 save error:', e);
           err.textContent = `Saving failed: ${e.message || 'Unknown error'}`;
@@ -840,21 +849,15 @@ const PAGES = [
     }
   },
 
-  /* -----------------------------------------------------------------------
-     Task 2 — Intro
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  /////////////////////////// Task 2 — Intro ////////////////////////////
+  ///////////////////////////////////////////////////////////////////////
   {
     slug: 'task-2-intro',
     title: 'Task 2 — Online Decision-Making (Instructions)',
     render: async container => {
       const toggleGlobalNext = show => {
-        const selectors = [
-          '#btnContinue',
-          '#nextBtn',
-          '.btn-next',
-          'button[data-next]',
-          '[data-role="next"]'
-        ];
+        const selectors = ['#btnContinue', '#nextBtn', '.btn-next', 'button[data-next]', '[data-role="next"]'];
         selectors.forEach(sel =>
           document.querySelectorAll(sel).forEach(el => {
             el.style.display = show ? '' : 'none';
@@ -890,9 +893,9 @@ const PAGES = [
     beforeNext: async () => true
   },
 
-  /* -----------------------------------------------------------------------
-     Task 2 — Product Selection
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  ///////////////////// Task 2 — Product Selection //////////////////////
+  ///////////////////////////////////////////////////////////////////////
   {
     slug: 'task-2',
     title: 'Task 2 — Online Decision-Making',
@@ -900,7 +903,7 @@ const PAGES = [
       const loadRaw = (state.condition?.load || 'low').toLowerCase();
       const nAttrs = loadRaw === 'high' ? 6 : 3;
 
-      // Always reload assigned_category from DB so we don't use stale local state
+      // Always reload assigned_category from DB 
       try {
         const { data: row, error } = await supabase
           .from('participants')
@@ -924,14 +927,11 @@ const PAGES = [
 
       const chosenCat = state.assignedCategory || 'Detergent';
       console.log('[Task2] Using category for products:', chosenCat);
+
       const baseItems = PRODUCTS[chosenCat] || [];
 
-
-
       // Use deterministic randomization based on session or participant ID
-      const seedInt = hashStringToInt(
-        String(state.session_id || state.participant_id || 'seed')
-      );
+      const seedInt = hashStringToInt(String(state.session_id || state.participant_id || 'seed'));
       const rng = mulberry32(seedInt);
       const items = shuffleWithRNG(baseItems, rng);
 
@@ -955,8 +955,7 @@ const PAGES = [
             <div class="product-grid" id="productGrid">
               ${items
                 .map(p => {
-                  const attrs =
-                    p.attrs?.slice(0, Math.min(nAttrs, p.attrs.length)) || [];
+                  const attrs = p.attrs?.slice(0, Math.min(nAttrs, p.attrs.length)) || [];
                   return `
                     <article
                       class="product-card"
@@ -995,16 +994,11 @@ const PAGES = [
 
       container.innerHTML = html;
 
-      // Rehydrate previously saved selection (if any)
+      // Rehydrate previously saved selection
       const savedId = state.answers?.task2?.selected_prod_id;
       if (savedId) {
-        const esc =
-          window.CSS && CSS.escape
-            ? CSS.escape(savedId)
-            : String(savedId).replace(/"/g, '\\"');
-        const selCard = container.querySelector(
-          `.product-card[data-prod="${esc}"]`
-        );
+        const esc = window.CSS && CSS.escape ? CSS.escape(savedId) : String(savedId).replace(/"/g, '\\"');
+        const selCard = container.querySelector(`.product-card[data-prod="${esc}"]`);
         if (selCard) selCard.classList.add('selected');
       }
 
@@ -1014,21 +1008,11 @@ const PAGES = [
       // Hover tracking for each product card
       $$('.product-card', container).forEach(card => {
         const prodId = card.getAttribute('data-prod');
-        card.addEventListener('pointerenter', () => startHover(prodId), {
-          passive: true
-        });
-        card.addEventListener(
-          'pointerleave',
-          () => endHover('leave'),
-          { passive: true }
-        );
+        card.addEventListener('pointerenter', () => startHover(prodId), { passive: true });
+        card.addEventListener('pointerleave', () => endHover('leave'), { passive: true });
       });
 
-      $('#productGrid', container)?.addEventListener(
-        'pointerleave',
-        () => endHover('leave'),
-        { passive: true }
-      );
+      $('#productGrid', container)?.addEventListener('pointerleave', () => endHover('leave'), { passive: true });
 
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) endHover('leave');
@@ -1042,10 +1026,7 @@ const PAGES = [
           if (!card) return;
 
           const prodId = card.dataset.prod;
-          const prodName =
-            card.dataset.name ||
-            card.querySelector('.product-title')?.textContent?.trim() ||
-            '';
+          const prodName = card.dataset.name || card.querySelector('.product-title')?.textContent?.trim() || '';
 
           // Redundant but kept for compatibility
           state.task2_selection = prodId;
@@ -1055,9 +1036,7 @@ const PAGES = [
           state.answers.task2.selected_prod_name = prodName;
           persist();
 
-          grid
-            .querySelectorAll('.product-card.selected')
-            ?.forEach(el => el.classList.remove('selected'));
+          grid.querySelectorAll('.product-card.selected')?.forEach(el => el.classList.remove('selected'));
           card.classList.add('selected');
         });
       }
@@ -1083,10 +1062,7 @@ const PAGES = [
           try {
             const { error: upErr } = await supabase
               .from('participants')
-              .upsert(
-                { participant_id: state.participant_id, selected_product: name },
-                { onConflict: 'participant_id' }
-              );
+              .upsert({ participant_id: state.participant_id, selected_product: name }, { onConflict: 'participant_id' });
 
             if (upErr) throw upErr;
 
@@ -1104,9 +1080,7 @@ const PAGES = [
           } catch (e) {
             console.error('Save selection failed:', e);
             if (errBox) {
-              errBox.textContent = `Saving failed, please try again. ${
-                e?.message || ''
-              }`;
+              errBox.textContent = `Saving failed, please try again. ${e?.message || ''}`;
               errBox.style.display = 'block';
             }
             finishBtn.disabled = false;
@@ -1135,10 +1109,7 @@ const PAGES = [
           if (errBox) {
             errBox.textContent = 'Please select a product before continuing.';
             errBox.style.display = 'block';
-            errBox.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center'
-            });
+            errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
 
           const grid = document.getElementById('productGrid');
@@ -1150,9 +1121,7 @@ const PAGES = [
         }
 
         if (errBox) {
-          errBox.textContent = `Saving failed, please try again. ${
-            e?.message || ''
-          }`;
+          errBox.textContent = `Saving failed, please try again. ${e?.message || ''}`;
           errBox.style.display = 'block';
         }
         return false;
@@ -1160,31 +1129,31 @@ const PAGES = [
     }
   },
 
-  /* -----------------------------------------------------------------------
-     Task 3.1 — PAAS (Cognitive Load)
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  ////////////////// Task 3.1 — PAAS (Cognitive Load) ///////////////////
+  ///////////////////////////////////////////////////////////////////////
   {
     slug: 'task-3-paas',
     title: 'Task 3 — PAAS (Cognitive Load)',
-    render: async (container) => {
+    render: async container => {
       const saved = state.answers?.paas ?? null;
 
       // Load chosen product from Supabase
       if (!state.selected_product && state.participant_id) {
-      const { data, error } = await supabase
-        .from('participants')
-        .select('selected_product')
-        .eq('participant_id', state.participant_id)
-        .maybeSingle();
+        const { data, error } = await supabase
+          .from('participants')
+          .select('selected_product')
+          .eq('participant_id', state.participant_id)
+          .maybeSingle();
 
-      if (!error && data?.selected_product) {
-        state.selected_product = data.selected_product;
-        saveLS('exp_state', state); // falls du LocalStorage nutzt
-        console.log('[PAAS] Loaded selected_product from Supabase:', state.selected_product);
-      } else {
-        console.warn('[PAAS] Could not load selected_product', error);
+        if (!error && data?.selected_product) {
+          state.selected_product = data.selected_product;
+          saveLS('exp_state', state); // falls du LocalStorage nutzt
+          console.log('[PAAS] Loaded selected_product from Supabase:', state.selected_product);
+        } else {
+          console.warn('[PAAS] Could not load selected_product', error);
+        }
       }
-    }
 
       const productName = state.selected_product || 'the product you chose';
 
@@ -1202,9 +1171,7 @@ const PAGES = [
               .map(
                 v => `
               <label class="paas-option">
-                <input type="radio" name="paas" value="${v}" ${
-                  saved === v ? 'checked' : ''
-                }>
+                <input type="radio" name="paas" value="${v}" ${saved === v ? 'checked' : ''}>
                 <span class="paas-label">
                   <strong>${v} </strong> - ${PAAS_LABELS[v]}
                 </span>
@@ -1238,17 +1205,12 @@ const PAGES = [
 
       const { error } = await supabase
         .from('questionnaires')
-        .upsert(
-          { participant_id: state.participant_id, paas: parseInt(sel.value, 10) },
-          { onConflict: 'participant_id' }
-        );
+        .upsert({ participant_id: state.participant_id, paas: parseInt(sel.value, 10) }, { onConflict: 'participant_id' });
 
       if (error) {
         console.error('PAAS upsert error:', error);
         if (err) {
-          err.textContent = `Save failed: ${
-            error.message || 'Unknown error'
-          }.`;
+          err.textContent = `Save failed: ${error.message || 'Unknown error'}.`;
           err.style.display = 'block';
         }
         return false;
@@ -1257,9 +1219,9 @@ const PAGES = [
     }
   },
 
-  /* -----------------------------------------------------------------------
-     Task 3.2 — NRQ (Cognitive Load)
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  /////////////////// Task 3.2 — NRQ (Cognitive Load) ///////////////////
+  ///////////////////////////////////////////////////////////////////////
   {
     slug: 'task-3-nrq',
     title: 'Task 3 — Cognitive Load (NRQ)',
@@ -1350,16 +1312,12 @@ const PAGES = [
         row[`NRQ_${key}`] = parseInt(sel.value, 10);
       }
 
-      const { error } = await supabase
-        .from('questionnaires')
-        .upsert(row, { onConflict: 'participant_id' });
+      const { error } = await supabase.from('questionnaires').upsert(row, { onConflict: 'participant_id' });
 
       if (error) {
         console.error('NRQ upsert error:', error);
         if (err) {
-          err.textContent = `Save failed: ${
-            error.message || 'Unknown error'
-          }.`;
+          err.textContent = `Save failed: ${error.message || 'Unknown error'}.`;
           err.style.display = 'block';
         }
         return false;
@@ -1368,9 +1326,9 @@ const PAGES = [
     }
   },
 
-  /* -----------------------------------------------------------------------
-     Task 3.3 — PIES (Product Interest)
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  ///////////////// Task 3.3 — PIES (Product Interest) /////////////////
+  //////////////////////////////////////////////////////////////////////
   {
     slug: 'task-3-pies',
     title: 'Task 3 — Product Interest (PIES)',
@@ -1378,11 +1336,7 @@ const PAGES = [
       const headers = [1, 2, 3, 4, 5];
 
       // Normalize category (e.g. "Smartwatches" → "smartwatch")
-      const normCat =
-        (state.assignedCategory || '').toLowerCase() === 'smartwatches'
-          ? 'smartwatch'
-          : state.assignedCategory || '';
-
+      const normCat = (state.assignedCategory || '').toLowerCase() === 'smartwatches' ? 'smartwatch' : state.assignedCategory || '';
       const { pp, ps } = piesNounsForCategory(normCat);
 
       // Stable random order per participant:
@@ -1394,9 +1348,7 @@ const PAGES = [
       }
 
       // Map stored order of keys back to full item objects
-      const orderedItems = state.piesOrder.map(key =>
-        PIES_ITEMS.find(item => item.key === key)
-      );
+      const orderedItems = state.piesOrder.map(key => PIES_ITEMS.find(item => item.key === key));
 
       container.innerHTML = `
         <div class="card">
@@ -1479,16 +1431,12 @@ const PAGES = [
         row[key] = parseInt(sel.value, 10);
       }
 
-      const { error } = await supabase
-        .from('questionnaires')
-        .upsert(row, { onConflict: 'participant_id' });
+      const { error } = await supabase.from('questionnaires').upsert(row, { onConflict: 'participant_id' });
 
       if (error) {
         console.error('PIES upsert error:', error);
         if (err) {
-          err.textContent = `Save failed: ${
-            error.message || 'Unknown error'
-          }.`;
+          err.textContent = `Save failed: ${error.message || 'Unknown error'}.`;
           err.style.display = 'block';
         }
         return false;
@@ -1497,70 +1445,58 @@ const PAGES = [
     }
   },
 
-  /* -----------------------------------------------------------------------
-   Task 3.4 (Part 1) — ECM: PU & CI
-   ---------------------------------------------------------------------- */
-{
-  slug: 'task-3-ecm',
-  title: 'Questionnaire (4)',
-  render: async container => {
-    // Ensure assigned category is loaded from DB if missing
-    if (!state.assignedCategory && state.participant_id) {
-      try {
-        const { data, error } = await supabase
-          .from('participants')
-          .select('assigned_category')
-          .eq('participant_id', state.participant_id)
-          .maybeSingle();
+  ///////////////////////////////////////////////////////////////////////
+  ////////////////// Task 3.4 (Part 1) — ECM: PU & CI ///////////////////
+  ///////////////////////////////////////////////////////////////////////
+  {
+    slug: 'task-3-ecm',
+    title: 'Questionnaire (4)',
+    render: async container => {
+      // Ensure assigned category is loaded from DB if missing
+      if (!state.assignedCategory && state.participant_id) {
+        try {
+          const { data, error } = await supabase
+            .from('participants')
+            .select('assigned_category')
+            .eq('participant_id', state.participant_id)
+            .maybeSingle();
 
-        if (!error && data?.assigned_category) {
-          state.assignedCategory = data.assigned_category;
-          saveLS('exp_state', state);
-          console.log(
-            '[ECM] Loaded assignedCategory from Supabase:',
-            state.assignedCategory
-          );
-        } else {
-          console.warn(
-            '[ECM] Could not load assigned_category:',
-            error || 'No value returned'
-          );
+          if (!error && data?.assigned_category) {
+            state.assignedCategory = data.assigned_category;
+            saveLS('exp_state', state);
+            console.log('[ECM] Loaded assignedCategory from Supabase:', state.assignedCategory);
+          } else {
+            console.warn('[ECM] Could not load assigned_category:', error || 'No value returned');
+          }
+        } catch (err) {
+          console.error('[ECM] Supabase fetch failed:', err);
         }
-      } catch (err) {
-        console.error('[ECM] Supabase fetch failed:', err);
       }
-    }
 
-    // Ensure selected_product is loaded from DB if missing
-    if (!state.selected_product && state.participant_id) {
-      try {
-        const { data, error } = await supabase
-          .from('participants')
-          .select('selected_product')
-          .eq('participant_id', state.participant_id)
-          .maybeSingle();
+      // Ensure selected_product is loaded from DB if missing
+      if (!state.selected_product && state.participant_id) {
+        try {
+          const { data, error } = await supabase
+            .from('participants')
+            .select('selected_product')
+            .eq('participant_id', state.participant_id)
+            .maybeSingle();
 
-        if (!error && data?.selected_product) {
-          state.selected_product = data.selected_product;
-          saveLS('exp_state', state);
-          console.log(
-            '[ECM] Loaded selected_product from Supabase:',
-            state.selected_product
-          );
-        } else {
-          console.warn(
-            '[ECM] Could not load selected_product:',
-            error || 'No value returned'
-          );
+          if (!error && data?.selected_product) {
+            state.selected_product = data.selected_product;
+            saveLS('exp_state', state);
+            console.log('[ECM] Loaded selected_product from Supabase:', state.selected_product);
+          } else {
+            console.warn('[ECM] Could not load selected_product:', error || 'No value returned');
+          }
+        } catch (err) {
+          console.error('[ECM] Supabase fetch for selected_product failed:', err);
         }
-      } catch (err) {
-        console.error('[ECM] Supabase fetch for selected_product failed:', err);
       }
-    }
 
-    const productName = state.selected_product || 'the product you selected';
+      const productName = state.selected_product || 'the product you selected';
 
-    const likertRow = (name, label) => `
+      const likertRow = (name, label) => `
       <tr>
         <td class="stmt">${label}</td>
         ${ECM_HEADERS.map(
@@ -1579,15 +1515,12 @@ const PAGES = [
       </tr>
     `;
 
-    const category = state.assignedCategory || 'Detergents';
-    const PU_ITEMS = getECM_PU_ITEMS(category);
+      const category = state.assignedCategory || 'Detergents';
+      const PU_ITEMS = getECM_PU_ITEMS(category);
 
-    const PU_CI_COMBINED = [
-      ...PU_ITEMS.map(it => ({ type: 'item', item: it })),
-      ...ECM_CI_ITEMS.map(it => ({ type: 'item', item: it }))
-    ];
+      const PU_CI_COMBINED = [...PU_ITEMS.map(it => ({ type: 'item', item: it })), ...ECM_CI_ITEMS.map(it => ({ type: 'item', item: it }))];
 
-    container.innerHTML = `
+      container.innerHTML = `
       <div class="card">
         <h1>Questionnaire (4.1)</h1>
         <p>In the following, you will be asked about your thoughts on <strong>${productName}</strong>, the product you selected in the decision-making task.</p>
@@ -1612,9 +1545,7 @@ const PAGES = [
                 </tr>
               </thead>
               <tbody>
-                ${PU_CI_COMBINED
-                  .map(({ item }) => likertRow(`ECM_${item.key}`, item.text))
-                  .join('')}
+                ${PU_CI_COMBINED.map(({ item }) => likertRow(`ECM_${item.key}`, item.text)).join('')}
               </tbody>
             </table>
           </div>
@@ -1622,71 +1553,63 @@ const PAGES = [
       </div>
     `;
 
-    container.addEventListener('change', e => {
-      const name = e.target?.name;
-      if (!name || !/^ECM_/.test(name)) return;
-      state.answers.ecm[name] = Number(e.target.value);
-      persist();
-    });
-  },
+      container.addEventListener('change', e => {
+        const name = e.target?.name;
+        if (!name || !/^ECM_/.test(name)) return;
+        state.answers.ecm[name] = Number(e.target.value);
+        persist();
+      });
+    },
 
-  beforeNext: async () => {
-    const err = document.getElementById('ecmError');
-    if (err) {
-      err.style.display = 'none';
-      err.textContent = '';
-    }
-
-    const category = state.assignedCategory || 'Detergents';
-    const PU_ITEMS = getECM_PU_ITEMS(category);
-
-    const requiredKeys = [
-      ...PU_ITEMS.map(it => 'ECM_' + it.key),
-      ...ECM_CI_ITEMS.map(it => 'ECM_' + it.key)
-    ];
-
-    for (const k of requiredKeys) {
-      const sel = document.querySelector(`input[name="${k}"]:checked`);
-      if (!sel) {
-        if (err) {
-          err.textContent = 'Please answer all statements before continuing.';
-          err.style.display = 'block';
-        }
-        return false;
+    beforeNext: async () => {
+      const err = document.getElementById('ecmError');
+      if (err) {
+        err.style.display = 'none';
+        err.textContent = '';
       }
-    }
 
-    const row = { participant_id: state.participant_id };
-    requiredKeys.forEach(k => {
-      const sel = document.querySelector(`input[name="${k}"]:checked`);
-      row[k] = parseInt(sel.value, 10);
-    });
+      const category = state.assignedCategory || 'Detergents';
+      const PU_ITEMS = getECM_PU_ITEMS(category);
 
-    const { error } = await supabase
-      .from('questionnaires')
-      .upsert(row, {
+      const requiredKeys = [...PU_ITEMS.map(it => 'ECM_' + it.key), ...ECM_CI_ITEMS.map(it => 'ECM_' + it.key)];
+
+      for (const k of requiredKeys) {
+        const sel = document.querySelector(`input[name="${k}"]:checked`);
+        if (!sel) {
+          if (err) {
+            err.textContent = 'Please answer all statements before continuing.';
+            err.style.display = 'block';
+          }
+          return false;
+        }
+      }
+
+      const row = { participant_id: state.participant_id };
+      requiredKeys.forEach(k => {
+        const sel = document.querySelector(`input[name="${k}"]:checked`);
+        row[k] = parseInt(sel.value, 10);
+      });
+
+      const { error } = await supabase.from('questionnaires').upsert(row, {
         onConflict: 'participant_id',
         returning: 'minimal'
       });
 
-    if (error) {
-      console.error('ECM upsert error:', error);
-      if (err) {
-        err.textContent = `Save failed: ${
-          error.message || 'Unknown error'
-        }.`;
-        err.style.display = 'block';
+      if (error) {
+        console.error('ECM upsert error:', error);
+        if (err) {
+          err.textContent = `Save failed: ${error.message || 'Unknown error'}.`;
+          err.style.display = 'block';
+        }
+        return false;
       }
-      return false;
+      return true;
     }
-    return true;
-  }
-},
+  },
 
-
-  /* -----------------------------------------------------------------------
-     Task 3.4 (Part 2) — ECM: Satisfaction
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  //////////////// Task 3.4 (Part 2) — ECM: Satisfaction ////////////////
+  ///////////////////////////////////////////////////////////////////////
   {
     slug: 'task-3-ecm-satisfaction',
     title: 'Questionnaire (4.2)',
@@ -1763,8 +1686,7 @@ const PAGES = [
         const sel = document.querySelector(`input[name="${k}"]:checked`);
         if (!sel) {
           if (err) {
-            err.textContent =
-              'Please answer all satisfaction items before continuing.';
+            err.textContent = 'Please answer all satisfaction items before continuing.';
             err.style.display = 'block';
           }
           return false;
@@ -1776,19 +1698,15 @@ const PAGES = [
         row[k] = state.answers.ecm[k];
       });
 
-      const { error } = await supabase
-        .from('questionnaires')
-        .upsert(row, {
-          onConflict: 'participant_id',
-          returning: 'minimal'
-        });
+      const { error } = await supabase.from('questionnaires').upsert(row, {
+        onConflict: 'participant_id',
+        returning: 'minimal'
+      });
 
       if (error) {
         console.error('ECM SAT upsert error:', error);
         if (err) {
-          err.textContent = `Save failed: ${
-            error.message || 'Unknown error'
-          }.`;
+          err.textContent = `Save failed: ${error.message || 'Unknown error'}.`;
           err.style.display = 'block';
         }
         return false;
@@ -1798,9 +1716,9 @@ const PAGES = [
     }
   },
 
-  /* -----------------------------------------------------------------------
-     Demographics
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  ///////////////////////////// Demographics ////////////////////////////
+  ///////////////////////////////////////////////////////////////////////
   {
     slug: 'task-4-demo-intro',
     title: 'Demographics — Intro',
@@ -1928,14 +1846,14 @@ const PAGES = [
         }
       }
 
-      // Bind age → state
+      // Bind age
       $('#demo_age')?.addEventListener('input', e => {
         const v = e.target.value ? Number(e.target.value) : null;
         state.answers.demo.age = Number.isFinite(v) ? v : null;
         persist();
       });
 
-      // Bind gender → state
+      // Bind gender
       $$('input[name="demo_gender"]').forEach(r =>
         r.addEventListener('change', e => {
           state.answers.demo.gender = Number(e.target.value);
@@ -1943,7 +1861,7 @@ const PAGES = [
         })
       );
 
-      // Bind education → state
+      // Bind education
       $$('input[name="demo_education"]').forEach(r =>
         r.addEventListener('change', e => {
           const code = Number(e.target.value);
@@ -1952,12 +1870,13 @@ const PAGES = [
           persist();
         })
       );
+
       $('#demo_education_other')?.addEventListener('input', e => {
         state.answers.demo.education_other = e.target.value || '';
         persist();
       });
 
-      // Bind employment → state
+      // Bind employment
       $$('input[name="demo_employment"]').forEach(r =>
         r.addEventListener('change', e => {
           const code = Number(e.target.value);
@@ -1966,6 +1885,7 @@ const PAGES = [
           persist();
         })
       );
+
       $('#demo_employment_other')?.addEventListener('input', e => {
         state.answers.demo.employment_other = e.target.value || '';
         persist();
@@ -2046,9 +1966,7 @@ const PAGES = [
         employment
       };
 
-      const { error } = await supabase
-        .from('demographics')
-        .upsert(row, { onConflict: 'participant_id' });
+      const { error } = await supabase.from('demographics').upsert(row, { onConflict: 'participant_id' });
 
       if (error) {
         console.error('demographics upsert error:', error);
@@ -2059,9 +1977,9 @@ const PAGES = [
     }
   },
 
-  /* -----------------------------------------------------------------------
-     Final Page
-     ---------------------------------------------------------------------- */
+  ///////////////////////////////////////////////////////////////////////
+  ///////////////////////////// Final Page //////////////////////////////
+  ///////////////////////////////////////////////////////////////////////
   {
     slug: 'final-thanks',
     title: 'End of Study!',
@@ -2086,7 +2004,6 @@ const PAGES = [
             mouse behavior in online decision-making.
           </p>
           <p>You can now close this window. </p>
-          <p> PS: If you participated via SurveySwap, you can copy the following code: OHBQ-C0NY-STEI </p>
           <div class="card;">
             <strong>Contact</strong><br/>
             <p>Marlene Rüschoff: <a href="mailto:mruescho@smail.uni-koeln.de">mruescho@smail.uni-koeln.de</a></p>
@@ -2112,16 +2029,14 @@ const PAGES = [
   }
 ];
 
-/* =========================================================================
-   9) APP RENDERING & NAVIGATION
-   ======================================================================= */
+// ######################################################################
+// 9) APP RENDERING & NAVIGATION
+// ######################################################################
 
 const app = document.getElementById('app');
 
-/**
- * Ensure there is a session row on the server, created once per session.
- * Uses the participant row as a foreign key.
- */
+// Ensure there is a session row on the server, created once per session.
+// Uses the participant row as a foreign key.
 async function ensureSessionRow() {
   if (loadLS('session_saved')) return;
 
@@ -2137,25 +2052,19 @@ async function ensureSessionRow() {
     user_agent: navigator.userAgent
   };
 
-  let { error } = await supabase
-    .from('sessions')
-    .upsert(payload, { onConflict: 'session_id' });
+  let { error } = await supabase.from('sessions').upsert(payload, { onConflict: 'session_id' });
 
   // In case of FK race, re-ensure participant and retry once
   if (error && /foreign key|violates foreign key/i.test(error.message || '')) {
     console.warn('FK error, recreate participant then retry…', error);
     await ensureParticipant();
-    ({ error } = await supabase
-      .from('sessions')
-      .upsert(payload, { onConflict: 'session_id' }));
+    ({ error } = await supabase.from('sessions').upsert(payload, { onConflict: 'session_id' }));
   }
 
   if (error) {
     console.error('Session upsert error:', error, payload);
     alert(
-      `Error creating session in Supabase:\n${error.message || 'Unknown error'}\n\nDetails:\n${
-        error.details || ''
-      }`
+      `Error creating session in Supabase:\n${error.message || 'Unknown error'}\n\nDetails:\n${error.details || ''}`
     );
     return;
   }
@@ -2164,10 +2073,8 @@ async function ensureSessionRow() {
   console.log('Session saved:', payload.session_id);
 }
 
-/**
- * Render the current page based on state.pageIndex.
- * Sets up "Continue" and "Back" navigation buttons.
- */
+// Render the current page based on state.pageIndex.
+
 async function renderPage() {
   ensureStateShape();
 
@@ -2179,17 +2086,13 @@ async function renderPage() {
     page = PAGES[0];
   }
 
+// Set up "Continue" and "Back" navigation buttons.
   const isFirst = state.pageIndex === 0;
   const isLast = state.pageIndex === PAGES.length - 1;
 
-  const hideBack =
-    page.slug === 'task-2' ||
-    page.slug === 'task-3-paas' ||
-    isLast;
+  const hideBack = page.slug === 'task-2' || page.slug === 'task-3-paas' || isLast;
 
-  const hideContinue =
-    page.slug === 'task-2' ||
-    page.slug === 'task-2-intro';
+  const hideContinue = page.slug === 'task-2' || page.slug === 'task-2-intro';
 
   app.innerHTML = `
     <div id="pageMount"></div>
@@ -2243,9 +2146,9 @@ async function renderPage() {
   $('#btnBack')?.addEventListener('click', window.__goBack);
 }
 
-/* =========================================================================
-   10) MOUSE & HOVER TRACKING
-   ======================================================================= */
+// ######################################################################
+// 10) MOUSE & HOVER TRACKING
+// ######################################################################
 
 // Mouse tracking state
 let tracking = false;
@@ -2254,17 +2157,19 @@ let mouseHandler = null;
 let samplingTimerId = null;
 let lastMouse = { x: null, y: null };
 
-/**
- * Start sampling mouse positions at ~25 Hz and buffer them in state.mouse_buffer.
- */
+// Start sampling mouse positions at ~25 Hz and buffer them in state.mouse_buffer
+
 function startMouseTracking() {
   if (tracking) return;
 
   tracking = true;
   state.task2_started_at = new Date().toISOString();
   mouseStartEpoch = performance.now();
+
+  // Log first point immediately
   lastMouse.x = 0;
-  lastMouse.y = 0; // log first point immediately
+  lastMouse.y = 0;
+
   state.mouse_buffer = [];
   saveLS('exp_state', state);
 
@@ -2282,6 +2187,7 @@ function startMouseTracking() {
     if (lastMouse.x == null || lastMouse.y == null) return;
 
     const t = performance.now() - mouseStartEpoch;
+
     state.mouse_buffer.push({
       session_id: state.session_id,
       participant_id: state.participant_id,
@@ -2301,9 +2207,8 @@ function startMouseTracking() {
   if (status) status.textContent = 'ON';
 }
 
-/**
- * Stop mouse tracking and optionally record a last event.
- */
+// Stop mouse tracking and optionally record a last event
+
 function stopMouseTracking() {
   if (!tracking) return;
 
@@ -2336,10 +2241,7 @@ function stopMouseTracking() {
   if (status) status.textContent = 'OFF';
 }
 
-/**
- * Flush all buffered mouse events to the 'mouse_events' table in Supabase.
- * Uses chunked inserts to avoid large payloads.
- */
+// Flush all buffered mouse events to the 'mouse_events' table in Supabase
 async function flushMouseEvents() {
   const buf = state.mouse_buffer || [];
   if (!buf.length) return;
@@ -2359,14 +2261,11 @@ async function flushMouseEvents() {
   saveLS('exp_state', state);
 }
 
-/* --- Hover tracking --- */
-
+// Hover tracking 
 let hoverActive = null; // { prodId, enterPerf, enterUTC }
 state.hover_buffer = state.hover_buffer || [];
 
-/**
- * Mark the start of a hover over a product.
- */
+// Mark the start of a hover over a product
 function startHover(prodId) {
   const nowPerf = performance.now();
   const nowUTC = new Date().toISOString();
@@ -2378,15 +2277,14 @@ function startHover(prodId) {
   hoverActive = { prodId, enterPerf: nowPerf, enterUTC: nowUTC };
 }
 
-/**
- * Mark the end of a hover and push an event into hover_buffer.
- * reason: 'leave' | 'switch' | 'end_task'
- */
+// Mark the end of a hover and push an event into hover_buffer
+
 function endHover(reason = 'leave') {
   if (!hoverActive) return;
 
   const leavePerf = performance.now();
   const leaveUTC = new Date().toISOString();
+
   const tEnterMs = Math.round(hoverActive.enterPerf - mouseStartEpoch);
   const tLeaveMs = Math.round(leavePerf - mouseStartEpoch);
   const duration = Math.max(0, tLeaveMs - tEnterMs);
@@ -2410,14 +2308,13 @@ function endHover(reason = 'leave') {
   saveLS('exp_state', state);
 }
 
-/**
- * Flush hover events to the 'mouse_hovers' table in Supabase.
- */
+// Flush hover events to the 'mouse_hovers' table in Supabase
 async function flushHoverEvents() {
   const buf = state.hover_buffer || [];
   if (!buf.length) return;
 
   const CHUNK = 1000;
+
   for (let i = 0; i < buf.length; i += CHUNK) {
     const slice = buf.slice(i, i + CHUNK);
     const { error } = await supabase.from('mouse_hovers').insert(slice);
@@ -2431,30 +2328,23 @@ async function flushHoverEvents() {
   saveLS('exp_state', state);
 }
 
-/* =========================================================================
-   11) BOOTSTRAP
-   ======================================================================= */
+// ######################################################################
+// 11) BOOTSTRAP
+// ######################################################################
 
 (async function bootstrap() {
   try {
     // Quick connectivity probe
     const ping = await supabase.from('participants').select('participant_id').limit(1);
     if (ping.error) {
-      throw new Error(
-        `Supabase connectivity failed: ${ping.error.message || ping.error}`
-      );
+      throw new Error(`Supabase connectivity failed: ${ping.error.message || ping.error}`);
     }
 
-    // WICHTIG: kein ensureParticipant(), kein ensureSessionRow() mehr hier
     renderPage();
   } catch (e) {
     console.error('Startup failed:', e);
 
-    const msg = [
-      e?.message || e,
-      e?.details ? `Details: ${e.details}` : '',
-      e?.hint ? `Hint: ${e.hint}` : ''
-    ]
+    const msg = [e?.message || e, e?.details ? `Details: ${e.details}` : '', e?.hint ? `Hint: ${e.hint}` : '']
       .filter(Boolean)
       .join('\n');
 
@@ -2463,4 +2353,3 @@ async function flushHoverEvents() {
       `<div class="card error">Startup failed. Check console & Supabase setup.</div>`;
   }
 })();
-
