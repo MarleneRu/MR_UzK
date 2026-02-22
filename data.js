@@ -1,5 +1,4 @@
 // ############################# PRODUCTS #############################
-// #####
 
 
 export const CATEGORIES_FOR_TASK2 = ["Detergent", "Smartwatch", "Speaker", "Water Bottle","Electric Toothbrush", "Backpacks"]; // "Speaker" = Bluetooth-Speaker list
