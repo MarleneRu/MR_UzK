@@ -28,9 +28,23 @@ index.html
 
 ---
 
-## 2. Data Analysis Pipeline
+## 2. Data Storage (Supabase)
 
-The analysis pipeline processes the raw mouse tracking data through a series of sequential steps. Each step builds on the output of the previous one.
+All experiment data is collected and stored in a Supabase database. The following raw data tables can be exported as CSV files:
+
+| Table | Description |
+|---|---|
+| `participants.csv` | Participant metadata (IDs, session info, etc.) |
+| `demographics.csv` | Demographic information collected from participants |
+| `questionnaires.csv` | Questionnaire responses |
+| `mouse_events.csv` | Raw mouse movement events (positions, timestamps, clicks) |
+| `mouse_hovers.csv` | Raw mouse hover events over interface elements |
+
+---
+
+## 3. Data Analysis Pipeline
+
+The analysis pipeline processes the raw data exported from Supabase through a series of sequential steps. Each step builds on the output of the previous one.
 
 ### Step 1 — Normalization (`Normalization.ipynb`)
 
@@ -65,13 +79,18 @@ Explores the data visually and extracts additional behavioural features.
 
 Performs data cleaning, preparation, and statistical modelling in R.
 
-- **Input:** CSV outputs from Steps 2 and 3
+- **Input:** Raw Supabase exports (`participants.csv`, `demographics.csv`, `questionnaires.csv`) and CSV outputs from Steps 2 and 3
 - **Output:** Statistical results and reports
 
 ### Pipeline Overview
 
 ```
-mouse_events (raw)
+Supabase
+  │  → participants.csv
+  │  → demographics.csv
+  │  → questionnaires.csv
+  │  → mouse_events.csv
+  │  → mouse_hovers.csv
   │
   ▼
 [Step 1] Normalization.ipynb
