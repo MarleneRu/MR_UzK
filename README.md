@@ -24,7 +24,7 @@ index.html
 ├── styles.css
 ├── supabase-js (loaded via CDN)
 ├── data.js
-└── app.js (imports data.js, uses Supabase client)
+└── app.js
 ```
 
 ---
