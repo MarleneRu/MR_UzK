@@ -1,0 +1,1615 @@
+---
+title: "Master Thesis - Statistical Analysis"
+author: "Marlene Rüschoff"
+date: "2026-01-08"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "/Users/marlenerueschoff/Documents/Uni/UzK Master/Masterarbeit/Experiment/masterthesis_experiment-1/Data/V6")
+```
+
+
+# Setup
+
+```{r cars}
+# Load libraries
+library(tidyverse)
+library(janitor)
+library(dplyr)
+library(skimr)
+library(naniar)
+library(tidyr)
+library(ggplot2)
+library(stringr)
+library(GGally)
+library(effectsize)
+library(e1071)    
+library(car)      
+library(lmtest)   
+library(sandwich) 
+library(purrr)
+library(broom)
+library(patchwork)
+```
+
+# Data Loading
+
+```{r}
+# Primary Data
+demographics   <- read.csv("demographics.csv")  
+mouse_events   <- read.csv("mouse_events_norm.csv")
+mouse_hovers   <- read.csv("mouse_hovers.csv")  
+participants   <- read.csv("participants.csv")  
+questionnaires <- read.csv("questionnaires.csv") 
+velocity_metrics <- read.csv("velocity_metrics_norm.csv")
+submovement_metrics <- read.csv("submovement_metrics_norm.csv")
+hover_metrics  <- read.csv("hover_metrics.csv")
+
+# Explorative Data
+direction_changes <- read.csv("direction_changes.csv")
+pause_analysis <- read.csv("pause_analysis.csv")
+velocity_by_phase <- read.csv("velocity_by_phase.csv")
+```
+
+
+# Data Preparation
+
+## Calculation of Scale Scores (Questionnaires)
+
+### PAAS
+
+```{r}
+# Rename column
+questionnaires <- questionnaires %>%
+  rename(PAAS_Score = paas)
+```
+
+
+### NRQ
+
+```{r}
+# Calculate Means of Scores (ICL, ECL, Total)
+questionnaires <- questionnaires %>%
+  mutate(
+    NRQ_ICL_Score = rowMeans(select(., NRQ_ICL1, NRQ_ICL2), na.rm = TRUE),
+    NRQ_ECL_Score = rowMeans(select(., NRQ_ECL1, NRQ_ECL2, NRQ_ECL3), na.rm = TRUE),
+    NRQ_Score = rowMeans(select(., NRQ_ICL1, NRQ_ICL2, NRQ_ECL1, NRQ_ECL2, NRQ_ECL3), na.rm = TRUE)
+  )
+```
+
+### PIES
+
+```{r}
+# Calculate PIES Score
+# item 2 and 3 are reverse-scored
+questionnaires <- questionnaires %>%
+  mutate(
+    # reverse scoring (1–7): new = 8 - old
+    PIES2_rev = 8 - PIES2,
+    PIES3_rev = 8 - PIES3,
+
+    # overall product interest score = average of 11 items
+    PIES_Score = rowMeans(
+      cbind(PIES1, PIES2_rev, PIES3_rev, PIES4, PIES5, PIES6, PIES7, PIES8, PIES9, PIES10, PIES11),
+      na.rm = TRUE))
+
+
+```
+
+### ECM
+
+```{r}
+# Calculate ECM Score
+questionnaires <- questionnaires %>%
+  mutate(
+    # CI is reverse-scored
+    ECM_CI3_rev = 8 - ECM_CI3
+  ) %>%
+  rowwise() %>% 
+  mutate(
+    # subscale scores (CI, S, PU)
+    ECM_CI_Score = mean(c_across(c(ECM_CI1, ECM_CI2, ECM_CI3_rev)), na.rm = TRUE),
+    ECM_S_Score  = mean(c_across(c(ECM_S1, ECM_S2, ECM_S3, ECM_S4)), na.rm = TRUE),
+    ECM_PU_Score = mean(c_across(c(ECM_PU1, ECM_PU2, ECM_PU3, ECM_PU4)), na.rm = TRUE),
+    ECM_Score    = mean(c_across(c(
+      ECM_CI1, ECM_CI2, ECM_CI3_rev,
+      ECM_S1, ECM_S2, ECM_S3, ECM_S4,
+      ECM_PU1, ECM_PU2, ECM_PU3, ECM_PU4
+    )), na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+```
+
+### Attention Check
+```{r}
+# filter the rows where the attention check was answered wrong
+questionnaires <- questionnaires %>%
+  filter(PIES_AC == "5" | PIES_AC == "1")
+```
+
+
+
+## Merge Data (df)
+
+```{r}
+# Merge all data into df
+df =  demographics %>%
+  left_join(participants, by = "participant_id") %>%
+  left_join(questionnaires,   by = "participant_id") %>%
+  left_join(hover_metrics, by = "participant_id") %>%
+  left_join(submovement_metrics, by = "participant_id") %>%
+  left_join(velocity_metrics, by = "participant_id") %>%
+  left_join(direction_changes %>% select(participant_id, n_direction_changes, dir_changes_per_s), by = "participant_id")
+
+
+# Remove unimportant columns
+df <- df %>%
+  select(-t1_detergent, -t1_smartwatch, -t1_speaker, -t1_bottle, -t1_toothbrush, -t1_backpack, -NRQ_ECL1, -NRQ_ECL2, -NRQ_ECL3, 
+         -PIES1, -PIES2, -PIES3, -PIES2_rev, -PIES3_rev, -PIES4, -PIES5, -PIES6, -PIES7, -PIES8, -PIES9, -PIES10, -PIES11, -ECM_PU1, -ECM_PU2, -ECM_PU3, -ECM_PU4, -ECM_S1, -ECM_S2, -ECM_S3, -ECM_S4, -ECM_CI1, -ECM_CI2, -ECM_CI3, -ECM_CI3_rev, -NRQ_ECL1, -NRQ_ECL2, -NRQ_ECL3, -NRQ_ICL1, -NRQ_ICL2, -updated_at.x,-updated_at.y)
+```
+
+
+## Data Cleaning
+
+a. Remove NAs
+```{r}
+# Remove rows with NAs
+ids_to_drop <- bind_rows(
+  df   %>% filter(if_any(everything(), is.na)) %>% distinct(participant_id)) %>%
+  distinct(participant_id)
+
+df   <- df   %>% 
+  anti_join(ids_to_drop, by = "participant_id")
+
+# Check 
+#df[ rowSums(is.na(df)) > 0, ]
+```
+
+b. Adjust labels
+```{r}
+# Adjustment of employment labels
+df <- df %>%
+  mutate(
+    employment = str_squish(employment),  # entfernt doppelte Spaces
+    employment = case_when(
+      employment %in% c("Selbstständig", "Self employed", "Self-employed") ~ "Self-employed",
+      employment == "Student"                                              ~ "Unemployed",
+      TRUE ~ employment
+    )
+  )
+```
+
+c. Set factor variables
+```{r}
+# Set factor variables
+df <- df %>% 
+  mutate(gender = factor(gender),
+         employment = factor(employment),
+         condition = factor(condition),
+         interest = relevel(factor(interest), ref = "Low"),
+         load = relevel(factor(load),ref = "Low"))
+```
+
+
+d. Save
+```{r}
+# Save df
+#write.csv(df, "df.csv", row.names = FALSE)
+```
+
+
+e. Prepare supplementary dataframes
+
+```{r}
+# Pause analysis: merge conditions from df and set factors
+pause_analysis <- pause_analysis %>%
+  inner_join(
+    df %>% select(participant_id, events_per_s, gender),
+    by = "participant_id") %>%
+  mutate(
+    interest = factor(interest, levels = c("Low", "High")),
+    load     = factor(load, levels = c("Low", "High"))
+  )
+```
+
+```{r}
+# Velocity by phase: merge conditions from df and set factors
+velocity_by_phase <- velocity_by_phase %>%
+  inner_join(
+    df %>% select(participant_id, interest, load, trial_duration_s, events_per_s),
+    by = "participant_id"
+  ) %>%
+  mutate(
+    interest = factor(interest, levels = c("Low", "High")),
+    phase    = factor(phase, levels = c("early", "mid", "late"))
+  )
+```
+
+
+# Descriptive Analysis
+
+```{r}
+# Overview of variable types
+str(df)
+```
+
+```{r}
+# Summary statistics
+summary(df)
+```
+
+## Descriptive Statistics
+
+### Condition Distribution
+
+```{r}
+df %>%
+  filter(!is.na(condition) & condition != "") %>%
+  count(condition, name = "n") %>%
+  mutate(prop = n / sum(n))
+```
+
+### Mouse Metrics
+
+```{r}
+# Mouse Metrics
+
+## Variables
+dvs <- c(
+  "mean_velocity_norm_s",
+  "total_distance_norm",
+  "submovements",
+  "mean_submovement_deviation",
+  "mean_hovertime_s"
+)
+
+## Compute mean, SD, Median, IQR, Min and Max
+summary_metrics_fun <- function(data, var) {
+  data %>%
+    summarise(
+      N      = sum(!is.na(.data[[var]])),
+      Mean   = mean(.data[[var]], na.rm = TRUE),
+      SD     = sd(.data[[var]], na.rm = TRUE),
+      Median = median(.data[[var]], na.rm = TRUE),
+      IQR    = IQR(.data[[var]], na.rm = TRUE),
+      Min    = min(.data[[var]], na.rm = TRUE),
+      Max    = max(.data[[var]], na.rm = TRUE),
+      .groups = "drop"
+    )
+}
+
+## Summary metrics by interest 
+summary_metrics_interest <- map_dfr(dvs, \(v) {
+  df %>%
+    group_by(interest) %>%
+    summary_metrics_fun(v) %>%
+    mutate(variable = v, .before = 1)
+})
+
+summary_metrics_interest
+
+## Summary metrics by interest x load 
+summary_metrics <- map_dfr(dvs, \(v) {
+  df %>%
+    group_by(interest, load) %>%
+    summary_metrics_fun(v) %>%
+    mutate(variable = v, .before = 1)
+})
+
+summary_metrics
+```
+
+```{r}
+# Mean values by condition
+df %>%
+  group_by(condition) %>%
+  summarise(
+    n = n(),
+    mean_velocity = mean(mean_velocity_norm_s, na.rm = TRUE),
+    mean_total_distance = mean(total_distance_norm, na.rm = TRUE),
+    mean_total_hovertime_s = mean(total_hovertime_s, na.rm = TRUE),
+    mean_n_hovers = mean(n_hovers, na.rm = TRUE),
+    mean_submovements = mean(submovements, na.rm = TRUE),
+    mean_submovment_deviation = mean(mean_submovement_deviation, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+```{r}
+# Mean values by cognitive load
+df %>%
+  group_by(load) %>%
+  summarise(
+    n = n(),
+    mean_velocity = mean(mean_velocity_norm_s, na.rm = TRUE),
+    mean_total_distance = mean(total_distance_norm, na.rm = TRUE),
+    mean_total_hovertime_s = mean(total_hovertime_s, na.rm = TRUE),
+    mean_submovements = mean(submovements, na.rm = TRUE),
+    mean_submovment_deviation = mean(mean_submovement_deviation, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+### Questionnaire Scores
+
+```{r}
+# Summary Statistic for Cognitive Load Measurements (PAAS + NRQ)
+summary_stats_load <- df %>%
+  group_by(load) %>%
+  summarise(
+    PAAS_mean = mean(PAAS_Score, na.rm = TRUE),
+    PAAS_sd = sd(PAAS_Score, na.rm = TRUE),
+    PAAS_max = max(PAAS_Score, na.rm = TRUE),
+    PAAS_min = min(PAAS_Score, na.rm = TRUE),
+    NRQ_ICL_mean = mean(NRQ_ICL_Score, na.rm = TRUE),
+    NRQ_ICL_sd = sd(NRQ_ICL_Score, na.rm = TRUE),
+    NRQ_ICL_max = max(NRQ_ICL_Score, na.rm = TRUE),
+    NRQ_ICL_min = min(NRQ_ICL_Score, na.rm = TRUE),
+    NRQ_ECL_mean = mean(NRQ_ECL_Score, na.rm = TRUE),
+    NRQ_ECL_sd = sd(NRQ_ECL_Score, na.rm = TRUE),
+    NRQ_ECL_max = max(NRQ_ECL_Score, na.rm = TRUE),
+    NRQ_ECL_min = min(NRQ_ECL_Score, na.rm = TRUE),
+    NRQ_mean = mean(NRQ_Score, na.rm = TRUE),
+    NRQ_sd = sd(NRQ_Score, na.rm = TRUE),
+    NRQ_max = max(NRQ_Score, na.rm = TRUE),
+    NRQ_min = min(NRQ_Score, na.rm = TRUE),
+  )
+
+# Summary Statistic for Interest Measurements (PIES + ECM)
+summary_stats_interest <- df %>%
+  group_by(interest) %>%
+  summarise(
+    PIES_mean = mean(PIES_Score, na.rm = TRUE),
+    PIES_sd = sd(PIES_Score, na.rm = TRUE),
+    PIES_max = max(PIES_Score, na.rm = TRUE),
+    PIES_min = min(PIES_Score, na.rm = TRUE),
+    ECM_mean = mean(ECM_Score, na.rm = TRUE),
+    ECM_sd = sd(ECM_Score, na.rm = TRUE),
+    ECM_max = max(ECM_Score, na.rm = TRUE),
+    ECM_min = min(ECM_Score, na.rm = TRUE),
+  )
+
+# Print summary statistics
+print(summary_stats_load)
+print(summary_stats_interest)
+```
+
+### Demographics
+
+a. Gender 
+```{r}
+gender_dist <- df %>%
+  filter(!is.na(gender) & gender != "") %>%
+  count(gender, name = "n") %>%
+  mutate(prop = n / sum(n)) %>%
+  arrange(desc(n))
+
+gender_dist
+
+ggplot(gender_dist, aes(x = reorder(gender, n), y = n, fill = gender)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(x = NULL, y = "Count", title = "Gender Distribution") 
+
+```
+
+b. Age
+
+```{r}
+ggplot(df, aes(x = age, fill = "Age")) +
+  geom_histogram(bins = 20) +
+  labs(x = "Age", y = "Count", title = "Age Distribution") +
+  guides(fill = "none")
+
+
+age_table <- df %>%
+  mutate(
+    age_group = cut(
+      age,
+      breaks = c(18, 25, 35, 45, 55, 65, Inf),
+      right = FALSE,                 # right not included
+      labels = c("18–24", "25–34", "35–44", "45–54", "55–64", "65+")
+    )
+  ) %>%
+  filter(!is.na(age_group)) %>%     
+  count(age_group, name = "N") %>%
+  mutate(
+    percent = 100 * N / sum(N)
+  )
+
+age_table
+
+
+```
+
+c. Employment
+
+```{r}
+employment_dist <- df %>%
+  filter(!is.na(employment) & employment != "") %>%
+  count(employment, name = "n") %>%
+  mutate(prop = n / sum(n))
+employment_dist
+
+ggplot(employment_dist, aes(x = reorder(employment, n), y = n, fill = employment)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(x = NULL, y = "Count", title = "Employment distribution")
+
+```
+
+d. Education
+
+```{r}
+# Education distribution
+education_dist <- df %>%
+  filter(!is.na(education) & education != "") %>%
+  count(education, name = "n") %>%
+  mutate(prop = n / sum(n))
+
+education_dist
+
+# Plot
+ggplot(education_dist, aes(x = reorder(education, n), y = n, fill = education)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(x = NULL, y = "Count", title = "Education distribution")
+
+```
+
+
+
+# Exploratory Data Analysis
+
+## Box Plots: Mouse Metrics 
+
+### Velocity
+
+```{r}
+# Summary interest x velocity 
+df %>%
+  group_by(interest) %>%
+  summarise(
+    n = n(),
+    mean_velocity = mean(mean_velocity_norm_s, na.rm = TRUE)
+  )
+
+# Summary load x velocity
+df %>%
+  group_by(load) %>%
+  summarise(
+    n = n(),
+    mean_velocity = mean(mean_velocity_norm_s, na.rm = TRUE)
+  )
+
+# Plot: Velocity by interest
+ggplot(df, aes(x = interest, y = mean_velocity_norm_s)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.6) +
+  geom_jitter(width = 0.12, alpha = 0.3) +
+  labs(x = "Interest", y = "Mean velocity (norm/s)")
+
+# Plot: Velocity by interest and load
+ggplot(df, aes(x = interest, y = mean_velocity_norm_s, fill = load)) +
+  geom_boxplot(outlier.shape = NA, position = position_dodge(width = 0.75), alpha = 0.6) +
+  geom_jitter(aes(color = load),
+              position = position_jitterdodge(jitter.width = 0.12, dodge.width = 0.75),
+              alpha = 0.3) +
+  labs(x = "Interest", y = "Mean velocity (norm/s)", fill = "Load", color = "Load")
+
+```
+
+### Total Distance
+
+```{r}
+# Summary interest x distance 
+df %>%
+  group_by(interest) %>%
+  summarise(
+    n = n(),
+    mean_total_distance = mean(total_distance_norm, na.rm = TRUE)
+  )
+
+# Summary load x distance
+df %>%
+  group_by(load) %>%
+  summarise(
+    n = n(),
+    mean_total_distance = mean(total_distance_norm, na.rm = TRUE)
+  )
+
+# Plot: Distance by interest
+ggplot(df, aes(x = interest, y = total_distance_norm)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.6) +
+  geom_jitter(width = 0.12, alpha = 0.3) +
+  labs(x = "Interest", y = "Total distance (norm)")
+
+# Plot: Distance by interest and load
+ggplot(df, aes(x = interest, y = total_distance_norm, fill = load)) +
+  geom_boxplot(outlier.shape = NA, position = position_dodge(width = 0.75), alpha = 0.6) +
+  geom_jitter(aes(color = load),
+              position = position_jitterdodge(jitter.width = 0.12, dodge.width = 0.75),
+              alpha = 0.3) +
+  coord_cartesian(ylim = c(0, 150)) +   # <- max auf 5 setzen (anpassen)
+  labs(x = "Interest", y = "Total distance (norm)", fill = "Load", color = "Load")
+
+```
+### Submovements
+
+```{r}
+# Summary interest x submovements
+df %>%
+  group_by(interest) %>%
+  summarise(
+    n = n(),
+    mean_submovements = mean(submovements, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Summary load x submovements
+df %>%
+  group_by(load) %>%
+  summarise(
+    n = n(),
+    mean_submovements = mean(submovements, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Plot: Submovements by interest
+ggplot(df, aes(x = interest, y = submovements)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.6) +
+  geom_jitter(width = 0.12, alpha = 0.3) +
+  labs(x = "Interest", y = "Number of submovements")
+
+# Plot: Submovements by interest and load
+ggplot(df, aes(x = interest, y = submovements, fill = load)) +
+  geom_boxplot(outlier.shape = NA, position = position_dodge(width = 0.75), alpha = 0.6) +
+  geom_jitter(aes(color = load),
+              position = position_jitterdodge(jitter.width = 0.12, dodge.width = 0.75),
+              alpha = 0.3) +
+  labs(x = "Interest", y = "Number of submovements", fill = "Load", color = "Load")
+
+
+```
+### Submovement Deviation 
+
+```{r}
+# Summary interest x deviation
+df %>%
+  group_by(interest) %>%
+  summarise(
+    n = n(),
+    mean_submovment_deviation = mean(mean_submovement_deviation, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Summary load x deviation
+df %>%
+  group_by(load) %>%
+  summarise(
+    n = n(),
+    mean_submovment_deviation = mean(mean_submovement_deviation, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Plot: Deviation by interest
+ggplot(df, aes(x = interest, y = mean_submovement_deviation)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.6) +
+  geom_jitter(width = 0.12, alpha = 0.3) +
+  labs(x = "Interest", y = "Submovement Deviation")
+
+# Plot: Deviation by interest and load
+ggplot(df, aes(x = interest, y = mean_submovement_deviation, fill = load)) +
+  geom_boxplot(outlier.shape = NA, position = position_dodge(width = 0.75), alpha = 0.6) +
+  geom_jitter(aes(color = load),
+              position = position_jitterdodge(jitter.width = 0.12, dodge.width = 0.75),
+              alpha = 0.3) +
+  labs(x = "Interest", y = "Submovement Deviation", fill = "Load", color = "Load")
+
+```
+
+### Hover Time
+
+```{r}
+# Summary interest x hover time
+df %>%
+  group_by(interest) %>%
+  summarise(
+    n = n(),
+    mean_total_hovertime_s = mean(total_hovertime_s, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Summary load x hover time
+df %>%
+  group_by(load) %>%
+  summarise(
+    n = n(),
+    mean_total_hovertime_s = mean(total_hovertime_s, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Plot: Hover time by interest
+ggplot(df, aes(x = interest, y = total_hovertime_s)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.6) +
+  geom_jitter(width = 0.12, alpha = 0.3) +
+  labs(x = "Interest", y = "Mean hover time (s)")
+
+# Plot: Hover time by interest and load
+ggplot(df, aes(x = interest, y = total_hovertime_s, fill = load)) +
+  geom_boxplot(outlier.shape = NA, position = position_dodge(width = 0.75), alpha = 0.6) +
+  geom_jitter(aes(color = load),
+              position = position_jitterdodge(jitter.width = 0.12, dodge.width = 0.75),
+              alpha = 0.3) +
+  coord_cartesian(ylim = c(0, 250)) +  
+  labs(x = "Interest", y = "Mean hover time (s)", fill = "Load", color = "Load")
+
+```
+
+
+
+### All Metrics (by Interest)
+
+```{r}
+# Mouse Metrics
+mouse_vars <- c(
+  "mean_velocity_norm_s",
+  "total_distance_norm",
+  "submovements",
+  "mean_submovement_deviation",
+  "total_hovertime_s"
+)
+
+# Box Plots
+p <- df %>%
+  pivot_longer(all_of(mouse_vars), names_to = "metric", values_to = "value") %>%
+  ggplot(aes(interest, value)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.12, alpha = 0.25) +
+  facet_wrap(~metric, scales = "free_y", ncol = 5) +
+  labs(x = NULL, y = NULL)
+p
+
+# Save
+#ggsave("mouse_metrics.png", p, width = 16, height = 4, units = "in", dpi = 300)
+
+```
+
+## Distributions and Correlations 
+
+```{r}
+# Extract Mouse metrics as numerical variables
+df_num <- df %>%
+  select(all_of(mouse_vars)) %>%
+  mutate(across(everything(), as.numeric)) %>%
+  na.omit()
+
+# GGPairs
+GGally::ggpairs(
+  df_num,
+  upper = list(continuous = wrap("cor", size = 3)),
+  diag  = list(continuous = "densityDiag"),
+  lower = list(continuous = wrap("points", alpha = 0.35, size = 0.8))
+)
+
+```
+
+
+##  Skewness 
+
+```{r}
+# Inspect skewness and decide on log transform
+
+# Variables to check
+vars_to_check <- c(
+  "mean_velocity_norm_s",
+  "mean_submovement_deviation",
+  "submovements",
+  "total_distance_norm",
+  "total_hovertime_s",
+  "trial_duration_s",
+  "n_events",
+  "events_per_s"
+)
+
+# Inspect distribution
+inspect_var <- function(y, name = "y") {
+  y_num <- suppressWarnings(as.numeric(y))
+  y_num <- y_num[is.finite(y_num)]
+
+  cat("\n====", name, "====\n")
+  cat("n =", length(y_num), "\n")
+  cat("min/median/mean/max =",
+      signif(min(y_num),4), "/",
+      signif(median(y_num),4), "/",
+      signif(mean(y_num),4), "/",
+      signif(max(y_num),4), "\n")
+  cat("skewness =", signif(e1071::skewness(y_num, na.rm = TRUE, type = 2), 4), "\n")
+  cat("share <= 0 =", signif(mean(y_num <= 0), 4), "\n")
+
+  # Histogram
+  print(
+    ggplot(data.frame(y = y_num), aes(x = y)) +
+      geom_histogram(bins = 40) +
+      labs(title = paste0("Histogram (raw): ", name), x = name, y = "Count")
+  )
+
+  # Histogram (log) or (log1p)
+  if (length(y_num) == 0) return(invisible(NULL))
+
+  if (all(y_num > 0)) {
+    print(
+      ggplot(data.frame(logy = log(y_num)), aes(x = logy)) +
+        geom_histogram(bins = 40) +
+        labs(title = paste0("Histogram (log): ", name),
+             x = paste0("log(", name, ")"), y = "Count")
+    )
+  } else if (all(y_num >= 0)) {
+    print(
+      ggplot(data.frame(log1py = log1p(y_num)), aes(x = log1py)) +
+        geom_histogram(bins = 40) +
+        labs(title = paste0("Histogram (log1p): ", name),
+             x = paste0("log1p(", name, ")"), y = "Count")
+    )
+  } else {
+    cat("Note: negative values present (log not applicable).\n")
+  }
+}
+
+# Run inspection for all variables
+for (v in vars_to_check) {
+  if (!v %in% names(df)) {
+    cat("\n[SKIP] Variable not found in df:", v, "\n")
+    next
+  }
+  inspect_var(df[[v]], v)
+}
+
+# Model diagnostics for all five outcomes: RAW vs LOG/LOG1P
+# Predictors
+x_formula <- "interest"  
+
+diag_plots <- function(m, title_prefix = "") {
+  par(mfrow = c(1, 2))
+  plot(m, which = 1, main = paste0(title_prefix, "Residuals vs Fitted"))
+  plot(m, which = 2, main = paste0(title_prefix, "Normal Q-Q"))
+  par(mfrow = c(1, 1))
+  cat("\nBreusch-Pagan test (heteroskedasticity):\n")
+  print(lmtest::bptest(m))
+}
+
+for (y_name in vars_to_check) {
+  if (!y_name %in% names(df)) next
+
+  y <- df[[y_name]]
+  y <- suppressWarnings(as.numeric(y))
+  y <- y[is.finite(y)]
+
+  cat("\n=============================\nOutcome:", y_name, "\n=============================\n")
+
+  f_raw <- as.formula(paste0(y_name, " ~ ", x_formula))
+  m_raw <- lm(f_raw, data = df)
+  cat("\n--- Diagnostics: RAW ---\n")
+  diag_plots(m_raw, paste0("RAW (", y_name, "): "))
+
+  # Decide log vs log1p vs skip
+  if (all(df[[y_name]] > 0, na.rm = TRUE)) {
+    f_log <- as.formula(paste0("log(", y_name, ") ~ ", x_formula))
+    m_log <- lm(f_log, data = df)
+    cat("\n--- Diagnostics: LOG ---\n")
+    diag_plots(m_log, paste0("LOG (", y_name, "): "))
+    cat("\nAIC comparison:\n")
+    print(AIC(m_raw, m_log))
+
+  } else if (all(df[[y_name]] >= 0, na.rm = TRUE)) {
+    f_log1p <- as.formula(paste0("log1p(", y_name, ") ~ ", x_formula))
+    m_log1p <- lm(f_log1p, data = df)
+    cat("\n--- Diagnostics: LOG1P ---\n")
+    diag_plots(m_log1p, paste0("LOG1P (", y_name, "): "))
+    cat("\nAIC comparison:\n")
+    print(AIC(m_raw, m_log1p))
+
+  } else {
+    cat("\n[INFO] Contains negative values (skipping log diagnostics).\n")
+  }
+}
+
+
+```
+
+-> mean velocity is slightly right skewed (skewness = 1.752) and log-transformation seems reasonable (see plot) 
+-> mean submovement deviation is strongly right skewed (skewness = 2.674) and log-transformation seems reasonable (see plot) 
+-> number of submovements are right skewed (skewness = 2.716) and log-transformation seems reasonable (see plot) 
+-> total distance is right skewed (skewness = 3.453) and log-transformation seems reasonable (see plot) 
+-> total hovertime is strongly right skewed (skewness = 6.303) and log-transformation seems reasonable (see plot)
+-> trial_duration_s  is strongly right skewed (skewness = 6.142) and log-transformation seems reasonable (see plot)
+-> n_events is strongly right skewed (skewness = 5.901) and log-transformation seems reasonable (see plot)
+-> events_per_s is left skewed (skewness = -2.327) but log-transformation does not really help
+
+
+
+
+
+# Questionnaires
+
+## Reliability Check - Cronbach's Alpha
+
+```{r}
+############# NRQ ##############
+# select the relevant NRQ items
+NRQ_ECL_items <- questionnaires %>%
+  dplyr::select("NRQ_ECL1","NRQ_ECL2","NRQ_ECL3")
+
+NRQ_ICL_items <- questionnaires %>%
+  dplyr::select("NRQ_ICL1", "NRQ_ICL2" )
+
+# compute Cronbach's alpha
+NRQ_ECL_alpha <- psych::alpha(NRQ_ECL_items)
+NRQ_ICL_alpha <- psych::alpha(NRQ_ICL_items)
+
+############# PIES ##############
+# select the relevant PIES items
+PIES_items <- questionnaires %>%
+  dplyr::select("PIES1", "PIES2_rev", "PIES3_rev", "PIES4", "PIES5", "PIES6", "PIES7", "PIES8", "PIES9", "PIES10", "PIES11")
+
+# compute Cronbach's alpha
+PIES_alpha <- psych::alpha(PIES_items)
+
+############# ECM ##############
+# select the relevant ECM items
+## Continuance Intention
+ECM_CI_items <- questionnaires %>%
+  dplyr::select("ECM_CI1", "ECM_CI2", "ECM_CI3_rev")
+
+## Satsifaction
+ECM_S_items <- questionnaires %>%
+  dplyr::select("ECM_S1", "ECM_S2", "ECM_S3", "ECM_S4")
+
+## Perceived Usefulness
+ECM_PU_items <- questionnaires %>%
+  dplyr::select("ECM_PU1", "ECM_PU2", "ECM_PU3", "ECM_PU4")
+
+# compute Cronbach's alpha 
+ECM_CI_alpha <- psych::alpha(ECM_CI_items)
+
+ECM_S_alpha <- psych::alpha(ECM_S_items)
+
+ECM_PU_alpha <- psych::alpha(ECM_PU_items)
+
+```
+
+### Result NRQ
+
+a. ECL
+
+```{r}
+#  NRQ ECL
+print("Cronbach's alpha for NRQ ECL items:")
+print(NRQ_ECL_alpha)
+```
+
+b. ICL
+
+```{r}
+# NRQ ICL
+print("Cronbach's alpha for NRQ ICL items:")
+print(NRQ_ICL_alpha)
+```
+
+
+### Result PIES
+
+```{r}
+# PIES
+print("Cronbach's alpha for PIES items:")
+print(PIES_alpha)
+```
+
+### Result ECM
+
+a. Continuance Intention
+
+```{r}
+# Continuance Intention
+print("Cronbach's alpha for ECM Continuance Intention items:")
+print(ECM_CI_alpha)
+```
+
+b. Satisfaction
+
+```{r}
+# Satisfaction
+print("Cronbach's alpha for ECM Satisfaction items:")
+print(ECM_S_alpha)
+```
+
+c. Perceived Usefulness
+
+```{r}
+# Perceived Usefulness
+print("Cronbach's alpha for ECM Perceived Usefulness items:")
+print(ECM_PU_alpha)
+```
+
+
+# Manipulation Check
+
+## Interest
+
+### PIES
+
+```{r}
+# Linear Model (PIES ~ Interest)
+mc_PIES <- lm(PIES_Score ~ interest * load, data = df)
+
+# ANOVA
+anova(mc_PIES)
+#summary(mc_PIES)
+
+# ANOVA table + partial eta^2 table
+a <- anova(mc_PIES)
+
+SS_error <- a["Residuals", "Sum Sq"]
+
+effects <- setdiff(rownames(a), "Residuals")
+
+out <- data.frame(
+  effect = effects,
+  df1    = a[effects, "Df"],
+  df2    = a["Residuals", "Df"],
+  F      = a[effects, "F value"],
+  p      = a[effects, "Pr(>F)"],
+  eta_p2 = a[effects, "Sum Sq"] / (a[effects, "Sum Sq"] + SS_error)
+)
+
+out
+
+
+```
+-> highly significant effect of interest on PIES: Successful interest manipulation
+
+### ECM 
+
+a. Continuance Intention
+
+```{r}
+# Linear Model (CI ~ Interest)
+mc_ECM_CI <- lm(ECM_CI_Score ~ interest * load, data = df)
+
+# ANOVA
+anova(mc_ECM_CI)
+
+# ANOVA table + partial eta^2 table
+a <- anova(mc_ECM_CI)
+
+SS_error <- a["Residuals", "Sum Sq"]
+effects  <- setdiff(rownames(a), "Residuals")
+
+out_ECM_CI <- data.frame(
+  effect = effects,
+  df1    = a[effects, "Df"],
+  df2    = a["Residuals", "Df"],
+  F      = a[effects, "F value"],
+  p      = a[effects, "Pr(>F)"],
+  eta_p2 = a[effects, "Sum Sq"] / (a[effects, "Sum Sq"] + SS_error)
+)
+out_ECM_CI
+```
+
+b. Satisfaction
+
+```{r}
+# Linear Model (S ~ Interest)
+mc_ECM_S <- lm(ECM_S_Score ~ interest * load, data = df)
+
+# ANOVA
+anova(mc_ECM_S)
+
+# ANOVA table + partial eta^2 table
+a <- anova(mc_ECM_S)
+
+SS_error <- a["Residuals", "Sum Sq"]
+effects  <- setdiff(rownames(a), "Residuals")
+
+mc_ECM_S <- data.frame(
+  effect = effects,
+  df1    = a[effects, "Df"],
+  df2    = a["Residuals", "Df"],
+  F      = a[effects, "F value"],
+  p      = a[effects, "Pr(>F)"],
+  eta_p2 = a[effects, "Sum Sq"] / (a[effects, "Sum Sq"] + SS_error)
+)
+mc_ECM_S
+```
+
+c. Perceived Usefulness
+
+```{r}
+# Linear Model (PU ~ Interest)
+mc_ECM_PU <- lm(ECM_PU_Score ~ interest * load, data = df)
+
+# ANOVA
+anova(mc_ECM_PU)
+
+# ANOVA table + partial eta^2 table
+a <- anova(mc_ECM_PU)
+
+SS_error <- a["Residuals", "Sum Sq"]
+effects  <- setdiff(rownames(a), "Residuals")
+
+out_ECM_PU <- data.frame(
+  effect = effects,
+  df1    = a[effects, "Df"],
+  df2    = a["Residuals", "Df"],
+  F      = a[effects, "F value"],
+  p      = a[effects, "Pr(>F)"],
+  eta_p2 = a[effects, "Sum Sq"] / (a[effects, "Sum Sq"] + SS_error)
+)
+out_ECM_PU
+```
+-> highly significant effect of interest on Continuance Intention, Satisfaction, and Perceived Usefulness 
+-> good proxy for long-term utility
+
+
+## Cognitive Load
+
+### PAAS
+
+```{r}
+# Linear Model (PAAS ~ Load)
+mc_PAAS <- lm(PAAS_Score ~ interest * load, data = df)
+
+# ANOVA
+anova(mc_PAAS)
+
+# ANOVA table + partial eta^2 table
+a <- anova(mc_PAAS)
+
+SS_error <- a["Residuals", "Sum Sq"]
+effects  <- setdiff(rownames(a), "Residuals")
+
+out_PAAS <- data.frame(
+  effect = effects,
+  df1    = a[effects, "Df"],
+  df2    = a["Residuals", "Df"],
+  F      = a[effects, "F value"],
+  p      = a[effects, "Pr(>F)"],
+  eta_p2 = a[effects, "Sum Sq"] / (a[effects, "Sum Sq"] + SS_error)
+)
+out_PAAS
+```
+-> no significant effect of load on PAAS -> no effective manipulation
+
+```{r}
+# Check mean values of the PAAS Score by condition
+
+## Mean PAAS Score by load
+df %>%
+  group_by(load) %>%
+  summarise(n=n(),
+            mean=mean(PAAS_Score, na.rm=TRUE),
+            sd=sd(PAAS_Score, na.rm=TRUE))
+
+## Mean PAAS Score by interest + load
+df %>%
+  group_by(load, interest) %>%
+  summarise(n=n(),
+            mean=mean(PAAS_Score, na.rm=TRUE),
+            sd=sd(PAAS_Score, na.rm=TRUE),
+            .groups="drop")
+
+```
+
+### NRQ
+
+a. ICL
+
+```{r}
+# Linear Model (ICL ~ Load)
+mc_NRQ_ICL <- lm(NRQ_ICL_Score ~ interest * load, data = df)
+
+# ANOVA
+anova(mc_NRQ_ICL)
+
+# ANOVA table + partial eta^2 table
+a <- anova(mc_NRQ_ICL)
+
+SS_error <- a["Residuals", "Sum Sq"]
+effects  <- setdiff(rownames(a), "Residuals")
+
+out_NRQ_ICL <- data.frame(
+  effect = effects,
+  df1    = a[effects, "Df"],
+  df2    = a["Residuals", "Df"],
+  F      = a[effects, "F value"],
+  p      = a[effects, "Pr(>F)"],
+  eta_p2 = a[effects, "Sum Sq"] / (a[effects, "Sum Sq"] + SS_error)
+)
+out_NRQ_ICL
+```
+
+b. ECL
+
+```{r}
+# Linear Model (ECL ~ Load)
+mc_NRQ_ECL <- lm(NRQ_ECL_Score ~ interest * load, data = df)
+
+# ANOVA
+anova(mc_NRQ_ECL)
+
+# ANOVA table + partial eta^2 table
+a <- anova(mc_NRQ_ECL)
+
+SS_error <- a["Residuals", "Sum Sq"]
+effects  <- setdiff(rownames(a), "Residuals")
+
+out_NRQ_ECL <- data.frame(
+  effect = effects,
+  df1    = a[effects, "Df"],
+  df2    = a["Residuals", "Df"],
+  F      = a[effects, "F value"],
+  p      = a[effects, "Pr(>F)"],
+  eta_p2 = a[effects, "Sum Sq"] / (a[effects, "Sum Sq"] + SS_error)
+)
+out_NRQ_ECL
+```
+
+c. NRQ Total
+
+```{r}
+# # Linear Model (NRQ ~ Load)
+mc_NRQ <- lm(NRQ_Score ~ interest * load, data = df)
+
+# ANOVA
+anova(mc_NRQ)
+```
+-> manipulation of cognitive load is not confirmed via self-report scales
+
+### Further Investigation
+
+```{r}
+# Check mean values of the PAAS and NRQ ICL Score by load
+df %>%
+  group_by(load) %>%
+  summarise(
+    n = n(),
+    mean_PAAS = mean(PAAS_Score, na.rm = TRUE),
+    sd_PAAS   = sd(PAAS_Score, na.rm = TRUE),
+    mean_ICL  = mean(NRQ_ICL_Score, na.rm = TRUE),
+    sd_ICL    = sd(NRQ_ICL_Score, na.rm = TRUE),
+    .groups="drop"
+  )
+
+```
+
+- PAAS: almost no difference in means between the two groups (0.18)
+- NRQ_ICL: almost no difference in means between the two groups (-0.10, also wrong direction)
+
+Therefore, we are comparing Cohen's d
+
+```{r}
+# PAAS:
+t_paas <- t.test(PAAS_Score ~ load, data = df)
+cohens_d(PAAS_Score ~ load, data = df)
+
+# ICL: High vs Low load
+t_icl <- t.test(NRQ_ICL_Score ~ load, data = df)
+cohens_d(NRQ_ICL_Score ~ load, data = df)
+
+```
+-> both estimates are close to zero which indicates that the average self-reported cognitive load is very similar across the two load conditions. This means, there is little evidence that participants experienced meaningfully different levels of cognitive load. In addition, the 95% confidence intervals include 0, which means that the data is also consistent with no true difference between conditions.
+
+
+
+# Hypothesis Testing 
+
+## HYPOTHESIS 1
+
+### H1a
+
+-> Interest in a product will increase the *mean velocity* of the cursor.
+
+```{r}
+# Linear Regression 1.1: Mean velocity
+lm_H1a <- lm(log(mean_velocity_norm_s) ~ interest + load + log(trial_duration_s) + events_per_s + gender , data = df)
+summary(lm_H1a)
+```
+-> No significant interest effect: H1a is not supported.
+
+### H1b
+
+-> Interest in a product will decrease the *total distance* traveled of the cursor.
+
+```{r}
+# Linear Regression 1.2: Total distance
+lm_H1b <- lm(log(total_distance_norm) ~ interest + load + log(trial_duration_s) + events_per_s + gender, data = df)
+summary(lm_H1b)
+```
+-> Significant interest effect: H1b is supported.
+
+```{r}
+# Calculate the change on the original scale
+beta_distance <- (-0.17379)
+beta_origin_distance <- exp(beta_distance)
+pct_change_distance <- (beta_origin_distance - 1) * 100
+pct_change_distance
+```
+
+-> Relative change of approx. -16%
+-> Total cursor distance under high product interest is approximately 16% shorter than under low product interest
+
+### H1c
+
+-> Interest in a product will decrease the *number of submovements*.
+
+```{r}
+# Linear Regression 1.3: Submovements
+lm_H1c <- lm(log(submovements) ~ interest + load + log(trial_duration_s) + events_per_s + gender, data = df)
+summary(lm_H1c)
+```
+
+-> No significant interest effect: H1c is not supported.
+
+### H1d
+
+-> Interest in a product will decrease the *deviation from the straightest path* within a submovement.
+
+```{r}
+# Linear Regression 1.4: Deviation
+lm_H1d <- lm(log(mean_submovement_deviation) ~ interest + load + log(trial_duration_s) + events_per_s + gender, data = df)
+summary(lm_H1d)
+```
+-> No significant interest effect: H1d is not supported.
+
+
+### H1e
+
+-> Interest in a product will decrease the *total hover time*.
+
+```{r}
+# Linear Regression 1.5: Hover Time
+lm_H1e <- lm(log(total_hovertime_s) ~ interest + load + log(trial_duration_s) + events_per_s + gender, data = df)
+summary(lm_H1e)
+```
+-> Significant interest effect: H1e is supported.
+
+```{r}
+# Calculate change on the original scale
+beta_hovertime <- (-0.22962)
+beta_origin_hovertime <- exp(beta_hovertime)
+pct_change_hovertime <- (beta_origin_hovertime - 1) * 100
+pct_change_hovertime
+```
+
+-> Relative change of approx. -21%
+-> Total hover time under high product interest is approximately 21% less than under low product interest
+
+
+## HYPOTHESIS 2
+
+```{r}
+# Moderation Effect: Velocity
+lm_H2a <- lm(log(mean_velocity_norm_s) ~ interest * load + log(trial_duration_s) + events_per_s + gender, data = df)   
+summary(lm_H2a)
+```
+
+```{r}
+# Moderation Effect: Distance
+lm_H2b <- lm(log(total_distance_norm) ~ interest * load + log(trial_duration_s) + events_per_s + gender, data = df)
+summary(lm_H2b)
+```
+
+```{r}
+# Moderation Effect: Submovements
+lm_H2c <- lm(log(submovements) ~ interest * load + log(trial_duration_s) + events_per_s + gender, data = df)
+summary(lm_H2c)
+```
+
+d. SUBMOVEMENT DEVIATION
+
+```{r}
+# Moderation Effect: Submovement Deviation
+lm_H2d <- lm(log(mean_submovement_deviation) ~ interest * load + log(trial_duration_s) + events_per_s + gender, data = df)
+summary(lm_H2d)
+```
+
+e. TOTAL HOVER TIME
+
+```{r}
+# Moderation Effect: Hover Time
+lm_H2e <- lm(log(total_hovertime_s) ~ interest * load + log(trial_duration_s) + events_per_s + gender, data = df)
+summary(lm_H2e)
+```
+
+
+-> The interaction term is not statistically significant for any of the five mouse metrics.
+-> H2 is not supported.
+
+
+# Further Exploratorive Analysis
+
+## Direction Changes
+
+### Descriptive Statistics
+
+```{r}
+# Descriptives
+direction_changes_stats <- df %>%
+  group_by(interest) %>%
+  summarise(
+    n = n(),
+    direction_changes_mean   = mean(n_direction_changes, na.rm = TRUE),
+    direction_changes_sd     = sd(n_direction_changes, na.rm = TRUE),
+    direction_changes_med    = median(n_direction_changes, na.rm = TRUE),
+    direction_changes_iqr    = IQR(n_direction_changes, na.rm = TRUE),
+
+    dir_changes_per_s_mean = mean(dir_changes_per_s, na.rm = TRUE),
+    dir_changes_per_s_med  = median(dir_changes_per_s, na.rm = TRUE)
+  )
+
+direction_changes_stats
+```
+
+### Box Plot
+
+```{r}
+ggplot(df, aes(x = interest, y = dir_changes_per_s)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.12, alpha = 0.25) +
+  labs(x = "Interest", y = "Direction changes per second")
+```
+
+### Histogram
+
+```{r}
+# Histogram
+hist(df$n_direction_changes,
+     breaks = 30,
+     main = "Distribution of direction changes",
+     xlab = "Number of direction changes",
+     ylab = "Count of participants")
+```
+-> right-skewed
+
+### ANOVA
+
+```{r}
+# Define ANOVA function
+anova_eta <- function(model) {
+  a <- car::Anova(model, type = 2)
+  SS_error <- a["Residuals", "Sum Sq"]
+  effects  <- setdiff(rownames(a), "Residuals")
+  
+  data.frame(
+    effect = effects,
+    df1    = a[effects, "Df"],
+    df2    = a["Residuals", "Df"],
+    F      = a[effects, "F value"],
+    p      = a[effects, "Pr(>F)"],
+    eta_p2 = a[effects, "Sum Sq"] / 
+             (a[effects, "Sum Sq"] + SS_error)
+  )
+}
+```
+
+
+```{r}
+# Linear Model 1.1: Mean velocity
+lm_Ex1 <- lm(log(1+n_direction_changes) ~ interest + load + log(trial_duration_s) + events_per_s + gender, data = df) # log(1+x) to handle zeros
+
+## ANOVA
+anova_eta(lm_Ex1)
+```
+
+-> No significant effect of direction changes
+
+## Pause Analysis
+
+### Descriptive Statistics
+
+```{r}
+# Descriptives
+pause_stats <- pause_analysis %>%
+  group_by(interest) %>%
+  summarise(
+    n = n(),
+    pause_share_mean   = mean(pause_share, na.rm = TRUE),
+    pause_share_sd     = sd(pause_share, na.rm = TRUE),
+    pause_share_med    = median(pause_share, na.rm = TRUE),
+    pause_share_iqr    = IQR(pause_share, na.rm = TRUE),
+
+    total_pause_mean_s = mean(total_pause_time_s, na.rm = TRUE),
+    total_pause_med_s  = median(total_pause_time_s, na.rm = TRUE),
+
+    n_pauses_mean      = mean(n_pauses, na.rm = TRUE),
+    n_pauses_med       = median(n_pauses, na.rm = TRUE),
+
+    median_pause_med_s = median(median_pause_s, na.rm = TRUE),
+    max_pause_med_s    = median(max_pause_s, na.rm = TRUE)
+  )
+
+pause_stats
+```
+
+### Boxplots
+
+```{r}
+# Boxplots
+# Pause Share
+ggplot(pause_analysis, aes(x = interest, y = pause_share)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.12, alpha = 0.4) +
+  labs(x = NULL, y = "Pause share",
+       title = "Pause share by interest")
+
+# Total Pause Time (s)
+ggplot(pause_analysis, aes(x = interest, y = total_pause_time_s)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.12, alpha = 0.4) +
+  labs(x = NULL, y = "Total pause time (s)", title = "Total pause time by interest") 
+
+# Number of Pauses
+ggplot(pause_analysis, aes(x = interest, y = n_pauses)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.12, alpha = 0.4) +
+  labs(x = NULL, y = "Number of pauses", title = "Number of pauses by interest")
+```
+### ANOVA 
+
+a. Pause Share
+
+```{r}
+# Histogram
+hist(pause_analysis$pause_share,
+     breaks = 30,
+     main = "Distribution of Pause Share",
+     xlab = "Pause Share",
+     ylab = "Count of participants")
+```
+-> not skewed 
+
+```{r}
+# Linear Model: Pause share ~ interest
+lm_Ex2 <- lm(pause_share ~ interest + load + events_per_s + gender, data = pause_analysis) # no control for trial duration because it is part of pause share
+
+## ANOVA
+anova_eta(lm_Ex2)
+```
+-> Significant effect of interest on pause share.
+
+
+b. Number of Pauses
+
+```{r}
+# Histogram
+hist(pause_analysis$n_pauses,
+     breaks = 30,
+     main = "Distribution of Number of Pauses",
+     xlab = "Number of Pauses",
+     ylab = "Count of participants")
+```
+
+-> right-skewed -> log-transformation
+
+```{r}
+# Linear Model: Number of Pauses
+lm_Ex3 <- lm(log(n_pauses) ~ interest + load + log(trial_duration_s) + events_per_s + gender, data = pause_analysis) 
+
+## ANOVA
+anova_eta(lm_Ex3)
+```
+-> No significant effect of interest on the number of pauses.
+
+
+c. Total Pause Time
+
+```{r}
+# Histogram
+hist(pause_analysis$total_pause_time_s,
+     breaks = 30,
+     main = "Distribution of Total Pause Time",
+     xlab = "Total Pause Time (s)",
+     ylab = "Count of participants")
+```
+-> right-skewed -> log-transformation
+
+```{r}
+# Linear Model: Total Pause Time
+lm_Ex4 <- lm(log(total_pause_time_s) ~ interest + load + log(trial_duration_s) + events_per_s + gender, data = pause_analysis) 
+
+## ANOVA
+anova_eta(lm_Ex4)
+```
+-> Significant effect of interest on total pause time. 
+
+
+
+-> Result: Participants in the high interest group have a statistically significant greater pause share and total pause time than in the low interest group. In contrast, the number of pauses is not statistically significant between the two interest groups. This means, under high interest, pauses are significantly longer but not more frequently.
+
+
+## Velocity Time Analysis 
+
+### Descriptive Statistics
+
+```{r}
+# Velocity by phase and interest
+phase_statistics <- velocity_by_phase %>%
+  group_by(interest, phase) %>%
+  summarise(
+    n = n(),
+    mean_velocity = mean(mean_velocity_norm_s, na.rm = TRUE),
+    sd_velocity   = sd(mean_velocity_norm_s, na.rm = TRUE),
+    mean_total_distance = mean(total_distance_norm, na.rm = TRUE),
+    sd_total_distance   = sd(total_distance_norm, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(interest, phase)
+
+phase_statistics
+
+```
+
+### Box Plot
+
+```{r}
+# Boxplot (Mean Velocity by Interest x Phase)
+ggplot(velocity_by_phase, aes(x = phase, y = mean_velocity_norm_s, fill = interest)) +
+  geom_boxplot(position = position_dodge(width = 0.8), outlier.alpha = 0.4) +
+  labs(
+    x = "Phase",
+    y = "Mean velocity (norm/s)",
+    fill = "Interest"
+  ) +
+  theme_minimal()
+
+ggplot(velocity_by_phase, aes(x = phase, y = mean_velocity_norm_s, fill = interest)) +
+  geom_boxplot(position = position_dodge(width = 0.8), outlier.alpha = 0.2) +
+  geom_jitter(aes(color = interest),
+              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+              alpha = 0.35, size = 1.2) +
+  labs(x = "Phase", y = "Mean velocity (norm/s)", fill = "Interest", color = "Interest") +
+  theme_minimal()
+```
+
+### ANOVA
+
+a. Early Phase
+
+```{r}
+# Linear Model: Early Phase
+lm_early <- lm(log(1+mean_velocity_norm_s) ~ interest + load + log(trial_duration_s),
+               data = velocity_by_phase %>% filter(phase == "early"))
+
+# ANOVA
+anova_eta(lm_early)
+```
+-> Significant interest effect in the early phase
+
+
+b. Middle Phase
+
+```{r}
+# Linear Model: Mid Phase
+lm_mid   <- lm(log(1+mean_velocity_norm_s) ~ interest + load + log(trial_duration_s),
+               data = velocity_by_phase %>% filter(phase == "mid"))
+
+# ANOVA
+anova_eta(lm_mid)
+```
+-> No significant interest effect in the mid phase
+
+c. Late Phase
+
+```{r}
+# Linear Model: Late Phase
+lm_late  <- lm(log(1+mean_velocity_norm_s) ~ interest + load + log(trial_duration_s),
+               data = velocity_by_phase %>% filter(phase == "late"))
+
+# ANOVA
+anova_eta(lm_late)
+```
+-> No significant interest effect in the late phase
+
+
+
