@@ -54,7 +54,7 @@ Normalizes the raw `mouse_events` data to account for differences in screen reso
 - **Input:** `mouse_events.csv` (raw)
 - **Output:** `mouse_events_norm.csv`
 
-### Step 2 — Mouse Metrics Calculation (`mouse_metrics.ipynb`)
+### Step 2 — Mouse Metrics Calculation (`Mouse_Metrics.ipynb`)
 
 Computes the five mouse movement metrics from the normalized data. Produces three output files:
 
@@ -66,7 +66,7 @@ Computes the five mouse movement metrics from the normalized data. Produces thre
 
 - **Inputs:** `mouse_events_norm.csv`, `mouse_hovers.csv`, `participants.csv`
 
-### Step 3 — Explorative Analysis (`Explorative Analysis.ipynb`)
+### Step 3 — Explorative Analysis (`Supplementary_Analysis.ipynb`)
 
 Explores the data visually and extracts additional behavioural features.
 
@@ -77,7 +77,7 @@ Explores the data visually and extracts additional behavioural features.
 
 - **Inputs:** `mouse_events_norm.csv`, `mouse_hovers.csv`, `participants.csv`
 
-### Step 4 — Statistical Analysis (`Statistical Analysis.Rmd`)
+### Step 4 — Statistical Analysis (`Statistical_Analysis.Rmd`)
 
 Performs data cleaning, preparation, and statistical modelling in R.
 
