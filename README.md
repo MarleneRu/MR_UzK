@@ -56,7 +56,7 @@ Normalizes the raw `mouse_events` data to account for differences in screen reso
 
 ### Step 2 — Mouse Metrics Calculation (`mouse_metrics.ipynb`)
 
-Computes a set of mouse movement metrics from the normalized data. Produces three output files:
+Computes the five mouse movement metrics from the normalized data. Produces three output files:
 
 | Metric(s) | Output File |
 |---|---|
