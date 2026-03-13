@@ -22,8 +22,9 @@ The experiment is a web application that captures user interactions (mouse movem
 ```
 index.html
 ├── styles.css
+├── supabase-js (loaded via CDN)
 ├── data.js
-└── app.js (requires data.js)
+└── app.js (imports data.js, uses Supabase client)
 ```
 
 ---
