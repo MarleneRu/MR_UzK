@@ -6,14 +6,14 @@ This project consists of two main components: a web-based experiment for data co
 
 ## 1. Experiment / Website
 
-The experiment is a web application that captures user interactions (mouse movements, clicks, etc.) with a product interface.
+The experiment is a web-based e-commerce simulation in which participants complete a product selection task while their mouse movements are recorded. Additionally, questionnaire responses and demographic information are collected.
 
 ### Files
 
 | File | Description |
 |---|---|
-| `index.html` | Entry point of the experiment. Loads all other resources and defines the page structure. |
-| `app.js` | Core application logic. Handles experiment flow, event listeners, and data collection. |
+| `index.html` | Entry point. Loads all resources and provides the `<main id="app">` mount point. |
+| `app.js` | Core application logic. Runs the entire experiment as a single-page app. |
 | `data.js` | Contains the product data used as input for the experiment. Imported by `app.js`. |
 | `styles.css` | Stylesheet for the experiment interface. Referenced by `index.html`. |
 
@@ -35,11 +35,11 @@ All experiment data is collected and stored in a Supabase database. The followin
 
 | Table | Description |
 |---|---|
-| `participants.csv` | Participant metadata (IDs, session info, etc.) |
-| `demographics.csv` | Demographic information collected from participants |
-| `questionnaires.csv` | Questionnaire responses |
-| `mouse_events.csv` | Raw mouse movement events (positions, timestamps, clicks) |
-| `mouse_hovers.csv` | Raw mouse hover events over interface elements |
+| `participants.csv` | Participant metadata: Participant metadata: ID, assigned condition (load × interest), Task 1 category ratings, assigned category for Task 2, and selected product. |
+| `demographics.csv` | Age, gender, education, and employment status per participant. |
+| `questionnaires.csv` | Questionnaire responses: PAAS, NRQ, PIES, and ECM.  |
+| `mouse_events.csv` | Raw mouse movement events (x-y coordinates, timestamps etc.) |
+| `mouse_hovers.csv` | Raw mouse hover events over products (product ID, entry time, exit time, hover duration etc.) |
 
 ---
 
@@ -49,22 +49,22 @@ The analysis pipeline processes the raw data exported from Supabase through a se
 
 ### Step 1 — Normalization (`Normalization.ipynb`)
 
-Normalizes the raw `mouse_events` data to account for differences in screen size and layout.
+Normalizes the raw `mouse_events` data to account for differences in screen resolutions.
 
-- **Input:** `mouse_events` (raw)
-- **Output:** `mouse_events_norm`
+- **Input:** `mouse_events.csv` (raw)
+- **Output:** `mouse_events_norm.csv`
 
 ### Step 2 — Mouse Metrics Calculation (`mouse_metrics.ipynb`)
 
 Computes a set of mouse movement metrics from the normalized data. Produces three output files:
 
-| Metric | Output File |
+| Metric(s) | Output File |
 |---|---|
 | Velocity + Distance | `velocity_metrics_norm.csv` |
 | Submovement + Deviation | `submovement_metrics_norm.csv` |
 | Hover Time | `hover_metrics.csv` |
 
-- **Input:** `mouse_events_norm`
+- **Inputs:** `mouse_events_norm.csv`, `mouse_hovers.csv`, `participants.csv`
 
 ### Step 3 — Explorative Analysis (`Explorative Analysis.ipynb`)
 
@@ -73,15 +73,16 @@ Explores the data visually and extracts additional behavioural features.
 1. **Mouse Trajectory Visualization** — Color-coded by velocity (no file output, visual only)
 2. **Direction Changes** → `direction_changes.csv`
 3. **Pause Analysis** → `pause_analysis.csv` + pause visualizations
+4. **Velocities by Phase** → `velocity_by_phase.csv`
 
-- **Input:** Outputs from Steps 1 and 2
+- **Inputs:** `mouse_events_norm.csv`, `mouse_hovers.csv`, `participants.csv`
 
 ### Step 4 — Statistical Analysis (`Statistical Analysis.Rmd`)
 
 Performs data cleaning, preparation, and statistical modelling in R.
 
-- **Input:** Raw Supabase exports (`participants.csv`, `demographics.csv`, `questionnaires.csv`) and CSV outputs from Steps 2 and 3
-- **Output:** Statistical results and reports
+- **Input:** Raw Supabase exports (`participants.csv`, `demographics.csv`, `questionnaires.csv`) and CSV outputs from Steps 1 to 3
+- **Output:** Statistical results and plots
 
 ### Pipeline Overview
 
@@ -106,7 +107,9 @@ Supabase
   │  → direction_changes.csv
   │  → pause_analysis.csv
   │  → trajectory & pause visualizations
+  │  → velocity_by_phase.csv
+
   ▼
 [Step 4] Statistical Analysis.Rmd
-     → statistical results & reports
+     → statistical results & plots
 ```
