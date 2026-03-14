@@ -75,7 +75,7 @@ Explores the data visually and extracts additional behavioural features.
 3. **Pause Analysis** → `pause_analysis.csv` + pause visualizations
 4. **Velocities by Phase** → `velocity_by_phase.csv`
 
-- **Inputs:** `mouse_events_norm.csv`, `mouse_hovers.csv`, `participants.csv`
+- **Inputs:** `mouse_events_norm.csv`, `mouse_hovers.csv`, `participants.csv`, `submovement_metrics_norm.csv`
 
 ### Step 4 — Statistical Analysis (`Statistical_Analysis.Rmd`)
 
