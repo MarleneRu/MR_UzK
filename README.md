@@ -29,13 +29,13 @@ index.html
 
 ---
 
-## 2. Data Storage (Supabase)
+## 2. Data Storage
 
 All experiment data is collected and stored in a Supabase database.
 
 ### Supabase SQL Functions
 
-Some core logic runs directly in the database as PostgreSQL functions. These are documented in `supabase_functions.sql` and include:
+Some core logic runs directly in the database as PostgreSQL functions. These are documented in `sql/supabase_functions.sql` and include:
 
 | Function | Type | Description |
 |---|---|---|
