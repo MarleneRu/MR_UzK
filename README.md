@@ -31,13 +31,26 @@ index.html
 
 ## 2. Data Storage (Supabase)
 
-All experiment data is collected and stored in a Supabase database. The following raw data tables can be exported as CSV files:
+All experiment data is collected and stored in a Supabase database.
+
+### Supabase SQL Functions
+
+Some core logic runs directly in the database as PostgreSQL functions. These are documented in `supabase_functions.sql` and include:
+
+| Function | Type | Description |
+|---|---|---|
+| `create_participant()` | RPC | Creates a new participant row with adaptive randomization. Assigns the least-filled condition. |
+| `fn_set_assigned_category()` | Trigger (BEFORE INSERT/UPDATE) | Automatically assigns the target product category for Task 2 based on Task 1 ratings. Selects the highest-rated category for high interest participants and the lowest-rated for low interest participants. |
+
+### Raw Data Tables
+
+The following tables can be exported as CSV files:
 
 | Table | Description |
 |---|---|
-| `participants.csv` | Participant metadata: Participant metadata: ID, assigned condition (load × interest), Task 1 category ratings, assigned category for Task 2, and selected product. |
+| `participants.csv` | Participant metadata: ID, assigned condition (load × interest), Task 1 category ratings, assigned category for Task 2, and selected product. |
 | `demographics.csv` | Age, gender, education, and employment status per participant. |
-| `questionnaires.csv` | Questionnaire responses: PAAS, NRQ, PIES, and ECM.  |
+| `questionnaires.csv` | Questionnaire responses: PAAS, NRQ, PIES, and ECM. |
 | `mouse_events.csv` | Raw mouse movement events (x-y coordinates, timestamps etc.) |
 | `mouse_hovers.csv` | Raw mouse hover events over products (product ID, entry time, exit time, hover duration etc.) |
 
