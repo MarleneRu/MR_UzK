@@ -9,7 +9,7 @@
 
 
 --------------------------------------------------------------------------------
--- 1. PARTICIPANT CREATION & CONDITION ASSIGNMENT
+-- 1. PARTICIPANT CREATION + CONDITION ASSIGNMENT
 --------------------------------------------------------------------------------
 -- Called via supabase.rpc('create_participant', { p_participant_id: ... })
 -- when a new participant starts the experiment.
