@@ -6,7 +6,7 @@ This project consists of two main components: a web-based experiment for data co
 
 ## 1. Experiment / Website
 
-The experiment is a web-based e-commerce simulation in which participants complete a product selection task while their mouse movements are recorded. Additionally, questionnaire responses and demographic information are collected.
+The experiment is a web-based e-commerce simulation in which participants completed a product selection task while their mouse movements were recorded. Additionally, questionnaire responses and demographic information were collected.
 
 ### Files
 
